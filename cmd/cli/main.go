@@ -13,7 +13,6 @@ import (
 )
 
 type app struct {
-	aggregates   *sqlite.AggregateModel
 	transactions *sqlite.TransactionModel
 	parser       interface {
 		ParseTransactions() []*models.Transaction
@@ -28,7 +27,6 @@ func main() {
 	defer file.Close()
 
 	app := app{
-		aggregates:   &sqlite.AggregateModel{DB: db},
 		transactions: &sqlite.TransactionModel{DB: db},
 		parser:       &csv.TransactionParser{File: file},
 	}
@@ -37,7 +35,7 @@ func main() {
 
 	app.transactions.LoadData(transactions)
 
-	aggs := app.aggregates.Aggregate()
+	aggs := models.MakeAggregates(transactions)
 
 	d := []*models.Aggregate{}
 

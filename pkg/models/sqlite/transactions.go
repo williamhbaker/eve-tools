@@ -20,6 +20,43 @@ func (t *TransactionModel) LoadData(transactions []*models.Transaction) {
 	t.addMany(transactions)
 }
 
+// GetAll returns every transaction from the database and returns a slice
+func (t *TransactionModel) GetAll() []*models.Transaction {
+	stmt := `SELECT * FROM transactions`
+
+	output := []*models.Transaction{}
+
+	rows, err := t.DB.Query(stmt)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for rows.Next() {
+		t := &models.Transaction{}
+		err = rows.Scan(
+			&t.ID,
+			&t.Date,
+			&t.Name,
+			&t.Quantity,
+			&t.Price,
+			&t.Tax,
+			&t.Value,
+			&t.Owner,
+			&t.Station,
+			&t.Region,
+			&t.Client,
+			&t.Type,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		output = append(output, t)
+	}
+
+	return output
+}
+
 func (t *TransactionModel) addMany(transactions []*models.Transaction) {
 	var b strings.Builder
 	stmt := `INSERT INTO transactions (date, name, quantity, price, tax, value, owner, station, region, client, type) VALUES `
