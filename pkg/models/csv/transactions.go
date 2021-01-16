@@ -1,30 +1,21 @@
-package main
+package csv
 
 import (
 	"encoding/csv"
-	"io"
-	"log"
 	"os"
 	"strconv"
 
 	"github.com/wbaker85/eve-tools/pkg/models"
 )
 
-type transactionAggregator struct {
-	open func(name string) (*os.File, error)
+// TransactionModel contains the methods for parsing a jEveAsssets export CSV
+// file containing a transaction history
+type TransactionModel struct {
+	File *os.File
 }
 
-func (t *transactionAggregator) aggregateTransactions(path string) map[string]*models.Aggregate {
-	file, err := t.open(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-	return t.processFile(file)
-}
-
-func (t *transactionAggregator) processFile(file io.Reader) map[string]*models.Aggregate {
-	r := csv.NewReader(file)
+func (t *TransactionModel) AggregateTransactions() map[string]*models.Aggregate {
+	r := csv.NewReader(t.File)
 	r.Read()
 
 	items := make(map[string]*models.Aggregate)
