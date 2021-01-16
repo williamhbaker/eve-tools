@@ -7,13 +7,17 @@ import (
 	"sort"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/wbaker85/eve-tools/pkg/models"
 	"github.com/wbaker85/eve-tools/pkg/models/csv"
 	"github.com/wbaker85/eve-tools/pkg/models/sqlite"
 )
 
 type app struct {
 	aggregates   *sqlite.AggregateModel
-	transactions *csv.TransactionModel
+	transactions *sqlite.TransactionModel
+	parser       interface {
+		ParseTransactions() []*models.Transaction
+	}
 }
 
 func main() {
@@ -25,13 +29,21 @@ func main() {
 
 	app := app{
 		aggregates:   &sqlite.AggregateModel{DB: db},
-		transactions: &csv.TransactionModel{File: file},
+		transactions: &sqlite.TransactionModel{DB: db},
+		parser:       &csv.TransactionParser{File: file},
 	}
 
-	items := app.transactions.AggregateTransactions()
-	app.aggregates.LoadData(items)
+	transactions := app.parser.ParseTransactions()
 
-	d := app.aggregates.GetData()
+	app.transactions.LoadData(transactions)
+
+	aggs := app.aggregates.Aggregate()
+
+	d := []*models.Aggregate{}
+
+	for _, val := range aggs {
+		d = append(d, val)
+	}
 
 	sort.Slice(d, func(i, j int) bool {
 		return d[i].Profit < d[j].Profit

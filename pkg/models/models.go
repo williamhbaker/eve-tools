@@ -14,6 +14,7 @@ type Aggregate struct {
 
 // Transaction represents a single transaction from the jEveAssets history
 type Transaction struct {
+	ID       int
 	Date     string
 	Name     string
 	Quantity int

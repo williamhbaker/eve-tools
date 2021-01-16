@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	// For working with sqlite
@@ -16,26 +15,41 @@ type AggregateModel struct {
 	DB *sql.DB
 }
 
-// LoadData re-initializes the database table of transaction aggregates and populates
-// it with the provided map of aggregated transactions
-func (a *AggregateModel) LoadData(d map[string]*models.Aggregate) {
-	a.init()
+// Aggregate aggregates the transactions in the database and returns a map
+// of the result.
+func (a *AggregateModel) Aggregate() map[string]*models.Aggregate {
+	t := a.loadTransactions()
 
-	s := []*models.Aggregate{}
+	output := make(map[string]*models.Aggregate)
 
-	for _, val := range d {
-		s = append(s, val)
+	for _, trans := range t {
+		var i *models.Aggregate
+
+		if output[trans.Name] == nil {
+			output[trans.Name] = &models.Aggregate{Name: trans.Name}
+		}
+		i = output[trans.Name]
+
+		thisType := trans.Type
+		if thisType == "Buy" {
+			i.Bought += trans.Quantity
+			i.Spent += trans.Value
+		} else {
+			i.Sold += trans.Quantity
+			i.Earned += trans.Value
+			i.Tax += trans.Tax
+		}
+
+		i.Profit = i.Earned + i.Spent + i.Tax
 	}
 
-	a.addMany(s)
+	return output
 }
 
-// GetData returns slice of aggregated data - each aggregate is from the relevant
-// transactions.
-func (a *AggregateModel) GetData() []*models.Aggregate {
-	stmt := `SELECT * FROM aggregates`
+func (a *AggregateModel) loadTransactions() []*models.Transaction {
+	stmt := `SELECT * FROM transactions`
 
-	output := []*models.Aggregate{}
+	output := []*models.Transaction{}
 
 	rows, err := a.DB.Query(stmt)
 	if err != nil {
@@ -43,61 +57,27 @@ func (a *AggregateModel) GetData() []*models.Aggregate {
 	}
 
 	for rows.Next() {
-		a := &models.Aggregate{}
-		err = rows.Scan(&a.Name, &a.Bought, &a.Sold, &a.Tax, &a.Spent, &a.Earned, &a.Profit)
+		t := &models.Transaction{}
+		err = rows.Scan(
+			&t.ID,
+			&t.Date,
+			&t.Name,
+			&t.Quantity,
+			&t.Price,
+			&t.Tax,
+			&t.Value,
+			&t.Owner,
+			&t.Station,
+			&t.Region,
+			&t.Client,
+			&t.Type,
+		)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		output = append(output, a)
+		output = append(output, t)
 	}
 
 	return output
-}
-
-func (a *AggregateModel) addMany(aggs []*models.Aggregate) {
-	stmt := `INSERT INTO aggregates (name, bought, sold, tax, spent, earned, profit) VALUES `
-
-	for _, row := range aggs {
-		sqlStr := "(%q, %d, %d, %f, %f, %f, %f),"
-		stmt += fmt.Sprintf(
-			sqlStr,
-			row.Name,
-			row.Bought,
-			row.Sold,
-			row.Tax,
-			row.Spent,
-			row.Earned,
-			row.Profit,
-		)
-	}
-
-	stmt = stmt[0 : len(stmt)-1]
-
-	_, err := a.DB.Exec(stmt)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func (a *AggregateModel) init() {
-	stmt := `CREATE TABLE aggregates (
-		name   varchar(50) PRIMARY KEY,
-		bought int,
-		sold   int,
-		tax    FLOAT,
-		spent  FLOAT,
-		earned FLOAT,
-		profit FLOAT
-	);`
-
-	exists := `SELECT name FROM sqlite_master WHERE type='table' AND name='aggregates';`
-
-	_, err := a.DB.Exec(exists)
-
-	if err == nil {
-		a.DB.Exec(`DROP TABLE aggregates`)
-	}
-
-	a.DB.Exec(stmt)
 }
