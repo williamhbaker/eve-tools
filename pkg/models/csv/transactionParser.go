@@ -2,7 +2,7 @@ package csv
 
 import (
 	"encoding/csv"
-	"os"
+	"io"
 	"strconv"
 
 	"github.com/wbaker85/eve-tools/pkg/models"
@@ -10,7 +10,7 @@ import (
 
 // TransactionParser deals with parsing transactions from a file
 type TransactionParser struct {
-	File *os.File
+	File io.Reader
 }
 
 // ParseTransactions parses the transactions from a CSV file and returns the
