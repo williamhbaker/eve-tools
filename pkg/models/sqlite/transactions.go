@@ -14,7 +14,8 @@ type TransactionModel struct {
 	DB *sql.DB
 }
 
-// LoadData loads the slice of transactions into the database
+// LoadData loads the slice of transactions into the database. It clears the
+// database first.
 func (t *TransactionModel) LoadData(transactions []*models.Transaction) {
 	t.init()
 	t.addMany(transactions)
@@ -58,6 +59,10 @@ func (t *TransactionModel) GetAll() []*models.Transaction {
 }
 
 func (t *TransactionModel) addMany(transactions []*models.Transaction) {
+	if len(transactions) == 0 {
+		return
+	}
+
 	var b strings.Builder
 	stmt := `INSERT INTO transactions (date, name, quantity, price, tax, value, owner, station, region, client, type) VALUES `
 	b.WriteString(stmt)
