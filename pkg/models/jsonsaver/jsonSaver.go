@@ -2,15 +2,21 @@ package jsonsaver
 
 import (
 	"encoding/json"
-	"fmt"
+	"os"
 	"strings"
-
-	"github.com/wbaker85/eve-tools/pkg/models"
 )
 
-// SaveAggregates is for saving a json file from a provided slice of data
-func SaveAggregates(path string, data []*models.Aggregate) {
+// JSONSaver handles everything for saving to a JSON file.
+type JSONSaver struct {
+	file *os.File
+}
+
+// Save is for saving a json file from a provided slice of data
+func (j *JSONSaver) Save(data interface{}) {
 	var jStr strings.Builder
 	json.NewEncoder(&jStr).Encode(data)
-	fmt.Println(jStr.String())
+
+	j.file.WriteString(jStr.String())
+
+	j.file.Close()
 }
