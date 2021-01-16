@@ -8,7 +8,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/wbaker85/eve-tools/pkg/models"
-	"github.com/wbaker85/eve-tools/pkg/models/csv"
+	"github.com/wbaker85/eve-tools/pkg/models/csvparser"
 	"github.com/wbaker85/eve-tools/pkg/models/sqlite"
 )
 
@@ -28,7 +28,7 @@ func main() {
 
 	app := app{
 		transactions: &sqlite.TransactionModel{DB: db},
-		parser:       &csv.TransactionParser{File: file},
+		parser:       &csvparser.TransactionParser{File: file},
 	}
 
 	transactions := app.parser.ParseTransactions()
