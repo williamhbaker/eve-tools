@@ -1,14 +1,16 @@
-package models
+package lib
 
 import (
 	"reflect"
 	"testing"
+
+	"github.com/wbaker85/eve-tools/pkg/models"
 )
 
 func TestMakeAggregates(t *testing.T) {
-	testList1 := []*Transaction{}
+	testList1 := []*models.Transaction{}
 
-	testList2 := []*Transaction{
+	testList2 := []*models.Transaction{
 		{
 			Name:     "item 1",
 			Quantity: 2,
@@ -41,7 +43,7 @@ func TestMakeAggregates(t *testing.T) {
 
 	tests := []struct {
 		name         string
-		transactions []*Transaction
+		transactions []*models.Transaction
 		want         map[string]*Aggregate
 	}{
 		{

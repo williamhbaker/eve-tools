@@ -34,9 +34,9 @@ func main() {
 
 	app.transactions.LoadData(transactions)
 
-	aggs := models.MakeAggregates(transactions)
+	aggs := lib.MakeAggregates(transactions)
 
-	d := []*models.Aggregate{}
+	d := []*lib.Aggregate{}
 
 	for _, val := range aggs {
 		d = append(d, val)

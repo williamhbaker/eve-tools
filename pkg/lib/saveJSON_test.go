@@ -6,13 +6,11 @@ import (
 	"os"
 	"strings"
 	"testing"
-
-	"github.com/wbaker85/eve-tools/pkg/models"
 )
 
 func TestSaveJSON(t *testing.T) {
-	data1 := []*models.Aggregate{}
-	data2 := []*models.Aggregate{
+	data1 := []*Aggregate{}
+	data2 := []*Aggregate{
 		{
 			Name: "hello",
 		},
@@ -23,7 +21,7 @@ func TestSaveJSON(t *testing.T) {
 
 	tests := []struct {
 		name string
-		data []*models.Aggregate
+		data []*Aggregate
 	}{
 		{
 			"Empty list",
