@@ -2,11 +2,10 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
-	"sort"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/wbaker85/eve-tools/pkg/lib"
 	"github.com/wbaker85/eve-tools/pkg/models"
 	"github.com/wbaker85/eve-tools/pkg/models/csvparser"
 	"github.com/wbaker85/eve-tools/pkg/models/sqlite"
@@ -43,11 +42,5 @@ func main() {
 		d = append(d, val)
 	}
 
-	sort.Slice(d, func(i, j int) bool {
-		return d[i].Profit < d[j].Profit
-	})
-
-	for _, item := range d {
-		fmt.Printf("%s - %.0f\n", item.Name, item.Profit)
-	}
+	lib.SaveJSON("./transaction_aggregations.json", d)
 }
