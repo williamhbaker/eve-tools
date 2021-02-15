@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"io"
 	"strconv"
+	"strings"
 
 	"github.com/wbaker85/eve-tools/pkg/models"
 )
@@ -29,10 +30,10 @@ func (t *TransactionParser) ParseTransactions() []*models.Transaction {
 
 		i := &models.Transaction{}
 
-		qty, _ := strconv.Atoi(record[2])
-		price, _ := strconv.ParseFloat(record[3], 64)
-		tax, _ := strconv.ParseFloat(record[4], 64)
-		value, _ := strconv.ParseFloat(record[5], 64)
+		qty, _ := strconv.Atoi(strings.Replace(record[2], ",", "", -1))
+		price, _ := strconv.ParseFloat(strings.Replace(record[3], ",", "", -1), 64)
+		tax, _ := strconv.ParseFloat(strings.Replace(record[4], ",", "", -1), 64)
+		value, _ := strconv.ParseFloat(strings.Replace(record[5], ",", "", -1), 64)
 
 		i.Date = record[0]
 		i.Name = record[1]
