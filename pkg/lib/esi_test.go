@@ -3,7 +3,7 @@ package lib
 import (
 	"io/ioutil"
 	"net/http"
-	"strconv"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -22,8 +22,8 @@ func (t TestClient) Do(r *http.Request) (*http.Response, error) {
 func TestGet(t *testing.T) {
 	c := TestClient{}
 
-	s := "wbaker@gmail.com"
-	u := "http://www.google.com"
+	s := "user@addr.com"
+	u := "https://www.whatever.com"
 
 	e := esi{client: c, userAgentString: s}
 
@@ -36,17 +36,75 @@ func TestGet(t *testing.T) {
 	}
 }
 
-func TestAllOrders(t *testing.T) {
-	c := http.DefaultClient
+func TestAggregateOrders(t *testing.T) {
+	testData := []map[string]interface{}{
+		{
+			"type_id":      1234.0,
+			"is_buy_order": "true",
+			"price":        100.0,
+		},
+		{
+			"type_id":      1234.0,
+			"is_buy_order": "true",
+			"price":        101.0,
+		},
+		{
+			"type_id":      1234.0,
+			"is_buy_order": "true",
+			"price":        99.0,
+		},
+		{
+			"type_id":      1234.0,
+			"is_buy_order": "false",
+			"price":        120.0,
+		},
+		{
+			"type_id":      1234.0,
+			"is_buy_order": "false",
+			"price":        118.0,
+		},
+		{
+			"type_id":      321.0,
+			"is_buy_order": "false",
+			"price":        400.0,
+		},
+		{
+			"type_id":      321.0,
+			"is_buy_order": "true",
+			"price":        300.0,
+		},
+	}
 
-	s := "wbaker@gmail.com"
-	u := "https://esi.evetech.net/v1/markets/10000002/orders?page=789"
+	got := aggregateOrders(testData)
+	want := map[int]*item{
+		1234: {
+			id:        1234,
+			sellPrice: 118,
+			buyPrice:  101,
+		},
+		321: {
+			id:        321,
+			sellPrice: 400,
+			buyPrice:  300,
+		},
+	}
 
-	e := esi{client: c, userAgentString: s}
-
-	_, status, _ := e.get(u)
-
-	e.AllOrders(10000002)
-
-	t.Errorf(strconv.Itoa(status))
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %#v want %#v", got, want)
+	}
 }
+
+// func TestAllOrders(t *testing.T) {
+// 	c := http.DefaultClient
+
+// 	s := "wbaker@gmail.com"
+// 	u := "https://esi.evetech.net/v1/markets/10000002/orders?page=789"
+
+// 	e := esi{client: c, userAgentString: s}
+
+// 	_, status, _ := e.get(u)
+
+// 	e.AllOrders(10000002)
+
+// 	t.Errorf(strconv.Itoa(status))
+// }

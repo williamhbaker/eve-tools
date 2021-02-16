@@ -4,11 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"net/url"
 )
 
 const ordersFragment = "https://esi.evetech.net/v1/markets/%d/orders?page=%d"
+
+type item struct {
+	id        int
+	sellPrice float64
+	buyPrice  float64
+}
 
 type esi struct {
 	client interface {
@@ -21,6 +28,7 @@ type esi struct {
 // a slice containing the item id, buy price, and sell price
 func (e *esi) AllOrders(stationID int) []string {
 	idx := 1
+	resultList := []map[string]interface{}{}
 
 	for {
 		url := fmt.Sprintf(ordersFragment, stationID, idx)
@@ -29,9 +37,7 @@ func (e *esi) AllOrders(stationID int) []string {
 		res := []map[string]interface{}{}
 
 		json.Unmarshal(resBytes, &res)
-		fmt.Println(res[0]["is_buy_order"])
-
-		fmt.Printf("Doing orders for page %d ...\n", idx)
+		resultList = append(resultList, res...)
 
 		if status == 404 {
 			break
@@ -44,7 +50,38 @@ func (e *esi) AllOrders(stationID int) []string {
 		idx++
 	}
 
+	aggregateOrders(resultList)
+
 	return []string{"ehhlo"}
+}
+
+func aggregateOrders(items []map[string]interface{}) map[int]*item {
+	output := make(map[int]*item)
+
+	for _, i := range items {
+		itemID := int(i["type_id"].(float64))
+		isBuy := i["is_buy_order"]
+		price := i["price"].(float64)
+
+		_, ok := output[itemID]
+		if !ok {
+			output[itemID] = &item{
+				id:        itemID,
+				buyPrice:  math.Inf(-1),
+				sellPrice: math.Inf(1),
+			}
+		}
+
+		thisItem := output[itemID]
+
+		if isBuy == "true" {
+			thisItem.buyPrice = math.Max(thisItem.buyPrice, price)
+		} else {
+			thisItem.sellPrice = math.Min(thisItem.sellPrice, price)
+		}
+	}
+
+	return output
 }
 
 func (e *esi) get(u string) ([]byte, int, error) {
