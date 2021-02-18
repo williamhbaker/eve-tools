@@ -16,14 +16,6 @@ import (
 	"github.com/wbaker85/eve-tools/pkg/models"
 )
 
-type TestClient struct {
-	DoFunc func(r *http.Request) (*http.Response, error)
-}
-
-func (t *TestClient) Do(r *http.Request) (*http.Response, error) {
-	return t.DoFunc(r)
-}
-
 var testData = []map[string]interface{}{
 	{
 		"type_id":      1234.0,
@@ -106,7 +98,7 @@ func TestAllOrders(t *testing.T) {
 	midPoint := len(testData) / 2
 	urlSpy := []string{}
 
-	c := &TestClient{DoFunc: func(r *http.Request) (*http.Response, error) {
+	c := &testClient{doFunc: func(r *http.Request) (*http.Response, error) {
 		urlSpy = append(urlSpy, r.URL.String())
 
 		re := regexp.MustCompile(`\d+$`)

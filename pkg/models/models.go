@@ -20,6 +20,7 @@ type Transaction struct {
 // and sell orders at a given station.
 type OrderItem struct {
 	ID        int
+	Name      string
 	SellPrice float64
 	BuyPrice  float64
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -55,7 +54,5 @@ func main() {
 	orders := api.AllOrders(forgeRegionID, 2)
 	aggregates := lib.AggregateOrders(orders, jitaStationID)
 
-	for _, val := range aggregates {
-		fmt.Println(val)
-	}
+	api.AddNames(aggregates)
 }
