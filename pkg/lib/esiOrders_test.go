@@ -12,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/wbaker85/eve-tools/pkg/models"
 )
 
 type TestClient struct {
@@ -61,17 +63,19 @@ var testData = []map[string]interface{}{
 }
 
 func TestAggregateOrders(t *testing.T) {
-	got := aggregateOrders(testData)
-	want := map[int]*item{
+	got := AggregateOrders(testData, 4321)
+	want := map[int]*models.OrderItem{
 		1234: {
-			id:        1234,
-			sellPrice: 118,
-			buyPrice:  101,
+			ID:        1234,
+			StationID: 4321,
+			SellPrice: 118,
+			BuyPrice:  101,
 		},
 		321: {
-			id:        321,
-			sellPrice: 400,
-			buyPrice:  300,
+			ID:        321,
+			StationID: 4321,
+			SellPrice: 400,
+			BuyPrice:  300,
 		},
 	}
 

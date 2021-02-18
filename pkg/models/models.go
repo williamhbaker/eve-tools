@@ -15,3 +15,12 @@ type Transaction struct {
 	Client   string
 	Type     string
 }
+
+// OrderItem is the collected information about an item based on the active buy
+// and sell orders at a given station.
+type OrderItem struct {
+	ID        int
+	StationID int
+	SellPrice float64
+	BuyPrice  float64
+}
