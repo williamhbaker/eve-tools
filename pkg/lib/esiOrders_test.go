@@ -1,39 +1,22 @@
 package lib
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"reflect"
+	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 )
 
-type TestClient struct{}
-
-func (t TestClient) Do(r *http.Request) (*http.Response, error) {
-	agent := r.Header.Get("User-Agent")
-	url := r.URL.String()
-
-	return &http.Response{
-		Body: ioutil.NopCloser(strings.NewReader(agent + " - " + url)),
-	}, nil
+type TestClient struct {
+	DoFunc func(r *http.Request) (*http.Response, error)
 }
 
-func TestGet(t *testing.T) {
-	c := TestClient{}
-
-	s := "user@addr.com"
-	u := "https://www.whatever.com"
-
-	e := esi{client: c, userAgentString: s}
-
-	res, _, _ := e.get(u)
-	got := string(res)
-	want := s + " - " + u
-
-	if got != want {
-		t.Errorf("got %q want %q", got, want)
-	}
+func (t *TestClient) Do(r *http.Request) (*http.Response, error) {
+	return t.DoFunc(r)
 }
 
 func TestAggregateOrders(t *testing.T) {
@@ -94,17 +77,30 @@ func TestAggregateOrders(t *testing.T) {
 	}
 }
 
-// func TestAllOrders(t *testing.T) {
-// 	c := http.DefaultClient
+func TestAllOrders(t *testing.T) {
+	c := &TestClient{DoFunc: func(r *http.Request) (*http.Response, error) {
+		re := regexp.MustCompile(`\d+$`)
+		page := re.FindString(r.URL.String())
+		pageNum, _ := strconv.Atoi(page)
 
-// 	s := "wbaker@gmail.com"
-// 	u := "https://esi.evetech.net/v1/markets/10000002/orders?page=789"
+		if pageNum <= 2 {
+			return &http.Response{
+				Body: ioutil.NopCloser(strings.NewReader(page)),
+			}, nil
+		}
 
-// 	e := esi{client: c, userAgentString: s}
+		return &http.Response{
+			Status: "404",
+			Body:   ioutil.NopCloser(strings.NewReader("ERROR ERROR ERROR")),
+		}, nil
+	},
+	}
 
-// 	_, status, _ := e.get(u)
+	e := esi{client: c}
 
-// 	e.AllOrders(10000002)
+	res, _, _ := e.get("https://esi.evetech.net/v1/markets/1234/orders?page=22")
 
-// 	t.Errorf(strconv.Itoa(status))
-// }
+	fmt.Println("res", string(res))
+
+	t.Errorf(string(res))
+}
