@@ -6,25 +6,26 @@ import (
 	"net/url"
 )
 
-type esi struct {
-	client interface {
+// Esi is a wrapper for actions involing interactions with the Eve Online ESI API.
+type Esi struct {
+	Client interface {
 		Do(*http.Request) (*http.Response, error)
 	}
-	userAgentString string
+	UserAgentString string
 }
 
-func (e *esi) get(u string) ([]byte, int, error) {
+func (e *Esi) get(u string) ([]byte, int, error) {
 	reqURL, _ := url.Parse(u)
 
 	req := &http.Request{
 		Method: "GET",
 		URL:    reqURL,
 		Header: map[string][]string{
-			"User-Agent": {e.userAgentString},
+			"User-Agent": {e.UserAgentString},
 		},
 	}
 
-	res, err := e.client.Do(req)
+	res, err := e.Client.Do(req)
 	if err != nil {
 		return nil, 0, err
 	}

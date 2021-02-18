@@ -21,7 +21,7 @@ func TestGet(t *testing.T) {
 	s := "user@addr.com"
 	u := "https://www.whatever.com"
 
-	e := esi{client: c, userAgentString: s}
+	e := Esi{Client: c, UserAgentString: s}
 
 	res, _, _ := e.get(u)
 	got := string(res)

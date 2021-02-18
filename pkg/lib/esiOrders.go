@@ -10,19 +10,17 @@ import (
 
 const ordersFragment = "https://esi.evetech.net/v1/markets/%d/orders?page=%d"
 
-// type item struct {
-// 	id        int
-// 	sellPrice float64
-// 	buyPrice  float64
-// }
-
-// All orders iterates through all orders in the provided region and returns
+// AllOrders iterates through all orders in the provided region and returns
 // a slice containing the item id, buy price, and sell price
-func (e *esi) AllOrders(regionID int) []map[string]interface{} {
+func (e *Esi) AllOrders(regionID, pageLimit int) []map[string]interface{} {
 	idx := 1
 	resultList := []map[string]interface{}{}
 
 	for {
+		if pageLimit > 0 && idx > pageLimit {
+			break
+		}
+
 		url := fmt.Sprintf(ordersFragment, regionID, idx)
 		resBytes, status, _ := e.get(url)
 

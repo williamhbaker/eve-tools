@@ -137,9 +137,9 @@ func TestAllOrders(t *testing.T) {
 	},
 	}
 
-	e := esi{client: c}
+	e := Esi{Client: c}
 
-	data := e.AllOrders(stationID)
+	data := e.AllOrders(stationID, -1)
 
 	wantUrls := []string{}
 
