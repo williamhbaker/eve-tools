@@ -57,13 +57,12 @@ func scrapeOrders() {
 		UserAgentString: "wbaker@gmail.com",
 	}
 
-	orders := api.AllOrders(forgeRegionID, 2)
+	orders := api.AllOrders(forgeRegionID, -1)
 	aggregates := lib.AggregateOrders(orders, jitaStationID)
 
 	api.AddNames(aggregates, 1000)
 
+	lib.SaveJSON("someData.json", aggregates)
+
 	fmt.Println(len(aggregates))
-	// for key, val := range aggregates {
-	// 	fmt.Println(key, val.Name)
-	// }
 }

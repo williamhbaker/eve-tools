@@ -17,6 +17,8 @@ func (e *Esi) AllOrders(regionID, pageLimit int) []map[string]interface{} {
 	resultList := []map[string]interface{}{}
 
 	for {
+		fmt.Printf("Getting orders for page %d...\n", idx)
+
 		if pageLimit > 0 && idx > pageLimit {
 			break
 		}
@@ -45,7 +47,7 @@ func AggregateOrders(items []map[string]interface{}, station int) map[int]*model
 
 	for _, i := range items {
 		itemID := int(i["type_id"].(float64))
-		isBuy := i["is_buy_order"]
+		isBuy := i["is_buy_order"].(bool)
 		price := i["price"].(float64)
 		stationID := int(i["location_id"].(float64))
 
@@ -57,17 +59,25 @@ func AggregateOrders(items []map[string]interface{}, station int) map[int]*model
 		if !ok {
 			output[itemID] = &models.OrderItem{
 				ID:        itemID,
-				BuyPrice:  math.Inf(-1),
-				SellPrice: math.Inf(1),
+				BuyPrice:  0,
+				SellPrice: 0,
 			}
 		}
 
 		thisItem := output[itemID]
 
-		if isBuy == "true" {
-			thisItem.BuyPrice = math.Max(thisItem.BuyPrice, price)
+		if isBuy {
+			if thisItem.BuyPrice == 0 {
+				thisItem.BuyPrice = price
+			} else {
+				thisItem.BuyPrice = math.Max(thisItem.BuyPrice, price)
+			}
 		} else {
-			thisItem.SellPrice = math.Min(thisItem.SellPrice, price)
+			if thisItem.SellPrice == 0 {
+				thisItem.SellPrice = price
+			} else {
+				thisItem.SellPrice = math.Min(thisItem.SellPrice, price)
+			}
 		}
 	}
 
