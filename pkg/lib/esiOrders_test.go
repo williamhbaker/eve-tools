@@ -27,53 +27,70 @@ func (t *TestClient) Do(r *http.Request) (*http.Response, error) {
 var testData = []map[string]interface{}{
 	{
 		"type_id":      1234.0,
+		"location_id":  9999.0,
 		"is_buy_order": "true",
 		"price":        100.0,
 	},
 	{
 		"type_id":      1234.0,
+		"location_id":  9999.0,
 		"is_buy_order": "true",
 		"price":        101.0,
 	},
 	{
 		"type_id":      1234.0,
+		"location_id":  9999.0,
 		"is_buy_order": "true",
 		"price":        99.0,
 	},
 	{
 		"type_id":      1234.0,
+		"location_id":  9999.0,
 		"is_buy_order": "false",
 		"price":        120.0,
 	},
 	{
 		"type_id":      1234.0,
+		"location_id":  9999.0,
 		"is_buy_order": "false",
 		"price":        118.0,
 	},
 	{
 		"type_id":      321.0,
+		"location_id":  9999.0,
 		"is_buy_order": "false",
 		"price":        400.0,
 	},
 	{
 		"type_id":      321.0,
+		"location_id":  9999.0,
 		"is_buy_order": "true",
 		"price":        300.0,
+	},
+	{
+		"type_id":      321.0,
+		"location_id":  8888.0,
+		"is_buy_order": "false",
+		"price":        600.0,
+	},
+	{
+		"type_id":      321.0,
+		"location_id":  8888.0,
+		"is_buy_order": "true",
+		"price":        500.0,
 	},
 }
 
 func TestAggregateOrders(t *testing.T) {
-	got := AggregateOrders(testData, 4321)
+	got := AggregateOrders(testData, 9999)
 	want := map[int]*models.OrderItem{
 		1234: {
 			ID:        1234,
-			StationID: 4321,
 			SellPrice: 118,
 			BuyPrice:  101,
 		},
 		321: {
 			ID:        321,
-			StationID: 4321,
 			SellPrice: 400,
 			BuyPrice:  300,
 		},

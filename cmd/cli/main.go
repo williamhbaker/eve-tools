@@ -43,4 +43,5 @@ func main() {
 	}
 
 	lib.SaveJSON("./transaction_aggregations.json", d)
+
 }

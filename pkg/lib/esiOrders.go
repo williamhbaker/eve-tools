@@ -16,14 +16,14 @@ const ordersFragment = "https://esi.evetech.net/v1/markets/%d/orders?page=%d"
 // 	buyPrice  float64
 // }
 
-// All orders iterates through all orders at the provided station and returns
+// All orders iterates through all orders in the provided region and returns
 // a slice containing the item id, buy price, and sell price
-func (e *esi) AllOrders(stationID int) []map[string]interface{} {
+func (e *esi) AllOrders(regionID int) []map[string]interface{} {
 	idx := 1
 	resultList := []map[string]interface{}{}
 
 	for {
-		url := fmt.Sprintf(ordersFragment, stationID, idx)
+		url := fmt.Sprintf(ordersFragment, regionID, idx)
 		resBytes, status, _ := e.get(url)
 
 		res := []map[string]interface{}{}
@@ -42,19 +42,23 @@ func (e *esi) AllOrders(stationID int) []map[string]interface{} {
 }
 
 // AggregateOrders aggregates data for a list of active orders from a single station.
-func AggregateOrders(items []map[string]interface{}, stationID int) map[int]*models.OrderItem {
+func AggregateOrders(items []map[string]interface{}, station int) map[int]*models.OrderItem {
 	output := make(map[int]*models.OrderItem)
 
 	for _, i := range items {
 		itemID := int(i["type_id"].(float64))
 		isBuy := i["is_buy_order"]
 		price := i["price"].(float64)
+		stationID := int(i["location_id"].(float64))
+
+		if stationID != station {
+			continue
+		}
 
 		_, ok := output[itemID]
 		if !ok {
 			output[itemID] = &models.OrderItem{
 				ID:        itemID,
-				StationID: stationID,
 				BuyPrice:  math.Inf(-1),
 				SellPrice: math.Inf(1),
 			}
