@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -46,6 +47,11 @@ func main() {
 
 	// lib.SaveJSON("./transaction_aggregations.json", d)
 
+	scrapeOrders()
+
+}
+
+func scrapeOrders() {
 	api := lib.Esi{
 		Client:          http.DefaultClient,
 		UserAgentString: "wbaker@gmail.com",
@@ -54,5 +60,10 @@ func main() {
 	orders := api.AllOrders(forgeRegionID, 2)
 	aggregates := lib.AggregateOrders(orders, jitaStationID)
 
-	api.AddNames(aggregates)
+	api.AddNames(aggregates, 1000)
+
+	fmt.Println(len(aggregates))
+	// for key, val := range aggregates {
+	// 	fmt.Println(key, val.Name)
+	// }
 }

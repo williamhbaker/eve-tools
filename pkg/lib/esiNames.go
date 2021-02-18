@@ -11,23 +11,27 @@ import (
 const namesFragment = "https://esi.evetech.net/v3/universe/names"
 
 // AddNames adds names to a list of items, which presumably do not yet have names
-func (e *Esi) AddNames(items map[int]*models.OrderItem) {
-	// needs to look like: [11489, 17255]
-	// can take 1000 at a time
-
+func (e *Esi) AddNames(items map[int]*models.OrderItem, pageSize int) {
 	list := []int{}
 
-	for itemID, itemData := range items {
+	for itemID := range items {
 		list = append(list, itemID)
 
-		// go until we have a list that is 1000 items long
-		if len(list) == 1000 {
-			fmt.Println(list, len(list), itemData)
+		if len(list) == pageSize {
+			e.getNamesFromIDList(list, items)
 			list = []int{}
 		}
 	}
 
-	fmt.Println(list, len(list))
+	e.getNamesFromIDList(list, items)
+}
+
+func (e *Esi) getNamesFromIDList(l []int, i map[int]*models.OrderItem) {
+	names := e.itemNameList(l)
+
+	for id, name := range names {
+		i[id].Name = name
+	}
 }
 
 func (e *Esi) itemNameList(list []int) map[int]string {
