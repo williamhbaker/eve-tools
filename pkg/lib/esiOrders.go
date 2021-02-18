@@ -33,10 +33,6 @@ func (e *esi) AllOrders(stationID int) []map[string]interface{} {
 			break
 		}
 
-		if idx > 5 {
-			break
-		}
-
 		idx++
 	}
 
