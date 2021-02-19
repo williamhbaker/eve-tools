@@ -114,15 +114,11 @@ func (t *TransactionModel) init() {
 		type			VARCHAR(5)
 	);`
 
-	exists := `SELECT name FROM sqlite_master WHERE type='table' AND name='transactions';`
+	drop := `DROP TABLE transactions`
 
-	_, err := t.DB.Exec(exists)
+	t.DB.Exec(drop)
 
-	if err == nil {
-		t.DB.Exec(`DROP TABLE transactions`)
-	}
-
-	_, err = t.DB.Exec(stmt)
+	_, err := t.DB.Exec(stmt)
 	if err != nil {
 		log.Fatal(err)
 	}
