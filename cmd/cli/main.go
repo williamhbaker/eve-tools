@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"net/http"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -25,9 +24,6 @@ type app struct {
 }
 
 func main() {
-	// scrapeOrders()
-	// processTransactions()
-
 	db, _ := sql.Open("sqlite3", "./data.db")
 	defer db.Close()
 
@@ -36,9 +32,24 @@ func main() {
 		orders:       &sqlite.OrderModel{DB: db},
 	}
 
-	orders := scrapeOrders(forgeRegionID, jitaStationID)
+	// api := lib.Esi{
+	// 	Client:          http.DefaultClient,
+	// 	UserAgentString: "wbaker@gmail.com",
+	// }
 
-	app.orders.LoadData(jitaStationID, orders)
+	// forgeOrders := api.AllOrders(forgeRegionID, -1)
+
+	// jitaPrices := lib.AggregateOrders(forgeOrders, jitaStationID)
+	// tttPrices := lib.AggregateOrders(forgeOrders, perimiterTTTStationID)
+
+	// api.AddNames(jitaPrices, 1000)
+	// api.AddNames(tttPrices, 1000)
+
+	// app.orders.LoadData(jitaStationID, jitaPrices)
+	// app.orders.LoadData(perimiterTTTStationID, tttPrices)
+
+	margins := app.orders.GetAllMargins(jitaStationID, perimiterTTTStationID)
+	lib.SaveJSON("./margins.json", margins)
 }
 
 func processTransactions() {
@@ -68,16 +79,60 @@ func processTransactions() {
 	lib.SaveJSON("./transaction_aggregations.json", d)
 }
 
-func scrapeOrders(regionID, stationID int) map[int]*models.OrderItem {
-	api := lib.Esi{
-		Client:          http.DefaultClient,
-		UserAgentString: "wbaker@gmail.com",
-	}
+// // "duration":90,"is_buy_order":false,"issued":"2021-02-15T20:28:58Z","location_id":60003760,"min_volume":1,"order_id":5926551566,"price":392.2,"range":"region","system_id":30000142,"type_id":2400,"volume_remain":349627,"volume_total":349627
 
-	orders := api.AllOrders(regionID, -1)
-	aggregates := lib.AggregateOrders(orders, stationID)
+// func saveCSV(path string, data []map[string]interface{}) {
+// 	records := [][]string{
+// 		{
+// 			"duration",
+// 			"is_buy_order",
+// 			"issued",
+// 			"location_id",
+// 			"min_volume",
+// 			"order_id",
+// 			"price",
+// 			"range",
+// 			"system_id",
+// 			"type_id",
+// 			"volume_remain",
+// 			"volume_total",
+// 		},
+// 	}
 
-	api.AddNames(aggregates, 1000)
+// 	for _, item := range data {
+// 		thisRecord := []string{
+// 			fmt.Sprintf("%v", item["duration"].(float64)),
+// 			fmt.Sprintf("%v", item["is_buy_order"].(bool)),
+// 			fmt.Sprintf("%v", item["issued"].(string)),
+// 			fmt.Sprintf("%v", item["location_id"].(float64)),
+// 			fmt.Sprintf("%v", item["min_volume"].(float64)),
+// 			fmt.Sprintf("%v", item["order_id"].(float64)),
+// 			fmt.Sprintf("%v", item["price"].(float64)),
+// 			fmt.Sprintf("%v", item["range"].(string)),
+// 			fmt.Sprintf("%v", item["system_id"].(float64)),
+// 			fmt.Sprintf("%v", item["type_id"].(float64)),
+// 			fmt.Sprintf("%v", item["volume_remain"].(float64)),
+// 			fmt.Sprintf("%v", item["volume_total"].(float64)),
+// 		}
 
-	return aggregates
-}
+// 		records = append(records, thisRecord)
+// 	}
+
+// 	file, _ := os.Create(path)
+
+// 	w := csv.NewWriter(file)
+
+// 	for _, record := range records {
+// 		if err := w.Write(record); err != nil {
+// 			log.Fatalln("error writing record to csv:", err)
+// 		}
+// 	}
+
+// 	// Write any buffered data to the underlying writer (standard output).
+// 	w.Flush()
+
+// 	if err := w.Error(); err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// }

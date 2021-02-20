@@ -24,3 +24,13 @@ type OrderItem struct {
 	SellPrice float64
 	BuyPrice  float64
 }
+
+// MarginItem includes details about the margin from an item based on a buy station
+// and a sell station
+type MarginItem struct {
+	ID        int
+	Name      string
+	SellPrice float64
+	BuyPrice  float64
+	Margin    float64
+}

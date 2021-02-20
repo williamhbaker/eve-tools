@@ -26,6 +26,64 @@ func (o *OrderModel) LoadData(stationID int, data map[int]*models.OrderItem) {
 	o.addMany(stationID, data)
 }
 
+// GetAllMargins returns a list of margins for all of the items in the database
+func (o *OrderModel) GetAllMargins(sellStationID, buyStationID int) []*models.MarginItem {
+	output := []*models.MarginItem{}
+
+	stmt := `
+SELECT
+	sell_station.item_id AS item_id,
+	sell_station.name AS name,
+	MAX(sell_station.buy_price, buy_station.buy_price) AS buy_price,
+	sell_station.sell_price AS sell_price,
+	(sell_station.sell_price - MAX(sell_station.buy_price, buy_station.buy_price)) / MAX(sell_station.buy_price, buy_station.buy_price) * 100 AS margin
+FROM "%d_orders" AS sell_station
+INNER JOIN "%d_orders" AS buy_station
+	ON sell_station.item_id = buy_station.item_id
+WHERE
+	sell_station.sell_price > 0 AND
+	MAX(sell_station.buy_price, buy_station.buy_price) > 0
+ORDER BY margin DESC;`
+
+	stmt = fmt.Sprintf(stmt, sellStationID, buyStationID)
+
+	rows, err := o.DB.Query(stmt)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for rows.Next() {
+		i := &models.MarginItem{}
+		err = rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.BuyPrice,
+			&i.SellPrice,
+			&i.Margin,
+		)
+
+		output = append(output, i)
+	}
+
+	return output
+}
+
+/*
+SELECT
+	sell_station.item_id AS item_id,
+	sell_station.name AS name,
+	MAX(sell_station.buy_price, buy_station.buy_price) AS buy_price,
+	sell_station.sell_price AS sell_price,
+	(sell_station.sell_price - MAX(sell_station.buy_price, buy_station.buy_price)) / MAX(sell_station.buy_price, buy_station.buy_price) * 100 AS margin
+FROM "60003760_orders" AS sell_station
+INNER JOIN "1028858195912_orders" AS buy_station
+	ON sell_station.item_id = buy_station.item_id
+WHERE
+	sell_station.sell_price > 0 AND
+	MAX(sell_station.buy_price, buy_station.buy_price) > 0
+ORDER BY margin DESC;
+*/
+
 func (o *OrderModel) addMany(stationID int, data map[int]*models.OrderItem) {
 	if len(data) == 0 {
 		return
