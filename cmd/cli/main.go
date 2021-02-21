@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"net/http"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -27,15 +28,17 @@ func main() {
 	db, _ := sql.Open("sqlite3", "./data.db")
 	defer db.Close()
 
-	app := app{
-		transactions: &sqlite.TransactionModel{DB: db},
-		orders:       &sqlite.OrderModel{DB: db},
+	// app := app{
+	// 	transactions: &sqlite.TransactionModel{DB: db},
+	// 	orders:       &sqlite.OrderModel{DB: db},
+	// }
+
+	api := lib.Esi{
+		Client:          http.DefaultClient,
+		UserAgentString: "wbaker@gmail.com",
 	}
 
-	// api := lib.Esi{
-	// 	Client:          http.DefaultClient,
-	// 	UserAgentString: "wbaker@gmail.com",
-	// }
+	api.VolumeForItem(forgeRegionID, 33520)
 
 	// forgeOrders := api.AllOrders(forgeRegionID, -1)
 
@@ -48,8 +51,8 @@ func main() {
 	// app.orders.LoadData(jitaStationID, jitaPrices)
 	// app.orders.LoadData(perimiterTTTStationID, tttPrices)
 
-	margins := app.orders.GetAllMargins(jitaStationID, perimiterTTTStationID)
-	lib.SaveJSON("./margins.json", margins)
+	// margins := app.orders.GetAllMargins(jitaStationID, perimiterTTTStationID)
+	// lib.SaveJSON("./margins.json", margins)
 }
 
 func processTransactions() {
