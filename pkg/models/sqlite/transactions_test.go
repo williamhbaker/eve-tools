@@ -1,26 +1,12 @@
 package sqlite
 
 import (
-	"database/sql"
-	"os"
 	"reflect"
 	"testing"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/wbaker85/eve-tools/pkg/models"
 )
-
-func newTestDB(t *testing.T) (*sql.DB, func()) {
-	db, err := sql.Open("sqlite3", "./testDB.db")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return db, func() {
-		db.Close()
-		os.Remove("./testDB.db")
-	}
-}
 
 func TestLoadAndGetData(t *testing.T) {
 	tests := []struct {
