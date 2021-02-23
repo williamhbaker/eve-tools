@@ -61,7 +61,6 @@ func truncateLastN(data []itemDailyVolume, num int) []itemDailyVolume {
 	return data[len(data)-n:]
 }
 
-// need to test
 func avgForPeriod(data []itemDailyVolume, length int) ItemAverageVolumes {
 	var n int
 
@@ -72,6 +71,10 @@ func avgForPeriod(data []itemDailyVolume, length int) ItemAverageVolumes {
 		n = len(data)
 	} else {
 		n = length
+	}
+
+	if n == 0 {
+		return ItemAverageVolumes{}
 	}
 
 	for idx := len(data) - n; idx < len(data); idx++ {

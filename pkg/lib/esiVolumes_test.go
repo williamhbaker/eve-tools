@@ -1,8 +1,68 @@
 package lib
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestAvgForPeriod(t *testing.T) {
+	testData := []itemDailyVolume{
+		{
+			OrderCount: 10,
+			Volume:     10,
+		},
+		{
+			OrderCount: 20,
+			Volume:     40,
+		},
+		{
+			OrderCount: 10,
+			Volume:     10,
+		},
+		{
+			OrderCount: 30,
+			Volume:     60,
+		},
+		{
+			OrderCount: 5,
+			Volume:     5,
+		},
+	}
+
+	tests := []struct {
+		name   string
+		data   []itemDailyVolume
+		length int
+		want   ItemAverageVolumes
+	}{
+		{
+			"empty list with period > list length",
+			testData[len(testData):],
+			10,
+			ItemAverageVolumes{NumDays: 0, OrdersAvg: 0, VolumeAvg: 0},
+		},
+		{
+			"non-empty list with period > list length",
+			testData,
+			10,
+			ItemAverageVolumes{NumDays: 5, OrdersAvg: 15, VolumeAvg: 25},
+		},
+		{
+			"period < list length",
+			testData,
+			3,
+			ItemAverageVolumes{NumDays: 3, OrdersAvg: 15, VolumeAvg: 25},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := avgForPeriod(tt.data, tt.length)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("got %#v want %#v", got, tt.want)
+			}
+		})
+	}
 
 }
 
