@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/montanaflynn/stats"
+	"github.com/wbaker85/eve-tools/pkg/models"
 )
 
 const volumesFragment = `https://esi.evetech.net/v1/markets/%d/history?type_id=%d`
@@ -17,17 +18,8 @@ type itemDailyVolume struct {
 	Volume     int     `json:"volume"`
 }
 
-// ItemAverageVolumes represents the average volumes for an item
-type ItemAverageVolumes struct {
-	RegionID  int
-	ItemID    int
-	NumDays   int
-	OrdersAvg int
-	VolumeAvg int
-}
-
 // VolumeForItem gets the volume information for a single item
-func (e *Esi) VolumeForItem(regionID, itemID int) ItemAverageVolumes {
+func (e *Esi) VolumeForItem(regionID, itemID int) models.ItemAverageVolume {
 	u := fmt.Sprintf(volumesFragment, regionID, itemID)
 
 	bytes, _, _ := e.get(u)
@@ -61,7 +53,7 @@ func truncateLastN(data []itemDailyVolume, num int) []itemDailyVolume {
 	return data[len(data)-n:]
 }
 
-func avgForPeriod(data []itemDailyVolume, length int) ItemAverageVolumes {
+func avgForPeriod(data []itemDailyVolume, length int) models.ItemAverageVolume {
 	var n int
 
 	totalOrders := 0
@@ -74,7 +66,7 @@ func avgForPeriod(data []itemDailyVolume, length int) ItemAverageVolumes {
 	}
 
 	if n == 0 {
-		return ItemAverageVolumes{}
+		return models.ItemAverageVolume{}
 	}
 
 	for idx := len(data) - n; idx < len(data); idx++ {
@@ -82,7 +74,7 @@ func avgForPeriod(data []itemDailyVolume, length int) ItemAverageVolumes {
 		totalVolume += data[idx].Volume
 	}
 
-	return ItemAverageVolumes{
+	return models.ItemAverageVolume{
 		NumDays:   n,
 		OrdersAvg: totalOrders / n,
 		VolumeAvg: totalVolume / n,

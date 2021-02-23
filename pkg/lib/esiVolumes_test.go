@@ -3,6 +3,8 @@ package lib
 import (
 	"reflect"
 	"testing"
+
+	"github.com/wbaker85/eve-tools/pkg/models"
 )
 
 func TestAvgForPeriod(t *testing.T) {
@@ -33,25 +35,25 @@ func TestAvgForPeriod(t *testing.T) {
 		name   string
 		data   []itemDailyVolume
 		length int
-		want   ItemAverageVolumes
+		want   models.ItemAverageVolume
 	}{
 		{
 			"empty list with period > list length",
 			testData[len(testData):],
 			10,
-			ItemAverageVolumes{NumDays: 0, OrdersAvg: 0, VolumeAvg: 0},
+			models.ItemAverageVolume{NumDays: 0, OrdersAvg: 0, VolumeAvg: 0},
 		},
 		{
 			"non-empty list with period > list length",
 			testData,
 			10,
-			ItemAverageVolumes{NumDays: 5, OrdersAvg: 15, VolumeAvg: 25},
+			models.ItemAverageVolume{NumDays: 5, OrdersAvg: 15, VolumeAvg: 25},
 		},
 		{
 			"period < list length",
 			testData,
 			3,
-			ItemAverageVolumes{NumDays: 3, OrdersAvg: 15, VolumeAvg: 25},
+			models.ItemAverageVolume{NumDays: 3, OrdersAvg: 15, VolumeAvg: 25},
 		},
 	}
 

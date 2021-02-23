@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"net/http"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -19,6 +18,7 @@ const perimiterTTTStationID = 1028858195912
 type app struct {
 	transactions *sqlite.TransactionModel
 	orders       *sqlite.OrderModel
+	itemAverages *sqlite.ItemAverageVolumeModel
 	parser       interface {
 		ParseTransactions() []*models.Transaction
 	}
@@ -28,17 +28,20 @@ func main() {
 	db, _ := sql.Open("sqlite3", "./data.db")
 	defer db.Close()
 
-	// app := app{
-	// 	transactions: &sqlite.TransactionModel{DB: db},
-	// 	orders:       &sqlite.OrderModel{DB: db},
-	// }
-
-	api := lib.Esi{
-		Client:          http.DefaultClient,
-		UserAgentString: "wbaker@gmail.com",
+	app := app{
+		transactions: &sqlite.TransactionModel{DB: db},
+		orders:       &sqlite.OrderModel{DB: db},
+		itemAverages: &sqlite.ItemAverageVolumeModel{DB: db},
 	}
 
-	api.VolumeForItem(forgeRegionID, 33520)
+	app.itemAverages.LoadData(1234, []models.ItemAverageVolume{})
+
+	// api := lib.Esi{
+	// 	Client:          http.DefaultClient,
+	// 	UserAgentString: "wbaker@gmail.com",
+	// }
+
+	// api.VolumeForItem(forgeRegionID, 33520)
 
 	// forgeOrders := api.AllOrders(forgeRegionID, -1)
 

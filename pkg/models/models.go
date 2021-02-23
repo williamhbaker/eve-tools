@@ -34,3 +34,13 @@ type MarginItem struct {
 	BuyPrice  float64
 	Margin    float64
 }
+
+// ItemAverageVolume includes information about an item in a region, with average
+// values for that item over the given time period.
+type ItemAverageVolume struct {
+	RegionID  int
+	ItemID    int
+	NumDays   int
+	OrdersAvg int
+	VolumeAvg int
+}
