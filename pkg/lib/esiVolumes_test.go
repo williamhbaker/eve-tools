@@ -2,6 +2,52 @@ package lib
 
 import "testing"
 
+func TestAvgForPeriod(t *testing.T) {
+
+}
+
+func TestTruncateLastN(t *testing.T) {
+	tests := []struct {
+		name string
+		vals []itemDailyVolume
+		n    int
+		want []itemDailyVolume
+	}{
+		{
+			"short list, larger N",
+			[]itemDailyVolume{{Volume: 1}, {Volume: 2}, {Volume: 3}},
+			10,
+			[]itemDailyVolume{{Volume: 1}, {Volume: 2}, {Volume: 3}},
+		},
+		{
+			"short list, smaller N",
+			[]itemDailyVolume{{Volume: 1}, {Volume: 2}, {Volume: 3}},
+			2,
+			[]itemDailyVolume{{Volume: 2}, {Volume: 3}},
+		},
+		{
+			"short list, even smaller N",
+			[]itemDailyVolume{{Volume: 1}, {Volume: 2}, {Volume: 3}},
+			1,
+			[]itemDailyVolume{{Volume: 3}},
+		},
+		{
+			"short list, smallest possible N",
+			[]itemDailyVolume{{Volume: 1}, {Volume: 2}, {Volume: 3}},
+			0,
+			[]itemDailyVolume{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := truncateLastN(tt.vals, tt.n)
+			assertSlices(t, got, tt.want)
+		})
+	}
+
+}
+
 func TestIndexOf(t *testing.T) {
 	tests := []struct {
 		name    string

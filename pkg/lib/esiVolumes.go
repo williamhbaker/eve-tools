@@ -36,41 +36,42 @@ func (e *Esi) VolumeForItem(regionID, itemID int) ItemAverageVolumes {
 
 	json.Unmarshal(bytes, &data)
 
-	data = truncateLastThirty(data)
+	data = truncateLastN(data, 30)
 
 	outliers := findOutliers(data)
 
 	cleaned := removeByIndexes(data, outliers)
 
-	averages := avgForPeriod(cleaned)
+	averages := avgForPeriod(cleaned, 7)
 	averages.RegionID = regionID
 	averages.ItemID = itemID
 
 	return averages
 }
 
-func truncateLastThirty(data []itemDailyVolume) []itemDailyVolume {
+func truncateLastN(data []itemDailyVolume, num int) []itemDailyVolume {
 	var n int
 
-	if len(data) < 30 {
+	if len(data) < num {
 		n = len(data)
 	} else {
-		n = 30
+		n = num
 	}
 
 	return data[len(data)-n:]
 }
 
-func avgForPeriod(data []itemDailyVolume) ItemAverageVolumes {
+// need to test
+func avgForPeriod(data []itemDailyVolume, length int) ItemAverageVolumes {
 	var n int
 
 	totalOrders := 0
 	totalVolume := 0
 
-	if len(data) < 7 {
+	if len(data) < length {
 		n = len(data)
 	} else {
-		n = 7
+		n = length
 	}
 
 	for idx := len(data) - n; idx < len(data); idx++ {
