@@ -55,7 +55,7 @@ ORDER BY margin DESC;`
 	for rows.Next() {
 		i := &models.MarginItem{}
 		err = rows.Scan(
-			&i.ID,
+			&i.ItemID,
 			&i.Name,
 			&i.BuyPrice,
 			&i.SellPrice,
