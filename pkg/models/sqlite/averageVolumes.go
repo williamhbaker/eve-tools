@@ -61,3 +61,34 @@ func (i *ItemAverageVolumeModel) init(regionID int) {
 		log.Fatal(err)
 	}
 }
+
+// GetVolumesForRegion returns a list of all items in the region (in the database)
+// with their volumes
+func (i *ItemAverageVolumeModel) GetVolumesForRegion(regionID int) []models.ItemAverageVolume {
+	stmt := `SELECT item_id, num_days, orders_avg, volume_avg FROM "%d_averages"`
+
+	rows, err := i.DB.Query(fmt.Sprintf(stmt, regionID))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	output := []models.ItemAverageVolume{}
+
+	for rows.Next() {
+		i := models.ItemAverageVolume{}
+		err = rows.Scan(
+			&i.ItemID,
+			&i.NumDays,
+			&i.OrdersAvg,
+			&i.VolumeAvg,
+		)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		output = append(output, i)
+	}
+
+	return output
+}

@@ -17,11 +17,7 @@ import (
 
 func TestVolumeForItems(t *testing.T) {
 	testRegionID := 1234
-	testItems := map[int]*models.OrderItem{
-		1: {},
-		2: {},
-		3: {},
-	}
+	testItems := []int{1, 2, 3}
 
 	testResData1 := []struct {
 		OrderCount int `json:"order_count"`

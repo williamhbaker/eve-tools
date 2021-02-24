@@ -20,14 +20,14 @@ type itemDailyVolume struct {
 
 // VolumeForItems gets the volume information for many items, and return a slice
 // containing the results.
-func (e *Esi) VolumeForItems(regionID int, items map[int]*models.OrderItem) []models.ItemAverageVolume {
+func (e *Esi) VolumeForItems(regionID int, itemIDs []int) []models.ItemAverageVolume {
 	output := []models.ItemAverageVolume{}
 
 	var count int
 
-	for itemID := range items {
+	for _, itemID := range itemIDs {
 		count++
-		fmt.Printf("Getting volumes for item %d of %d...\n", count, len(items))
+		fmt.Printf("Getting volumes for item %d of %d...\n", count, len(itemIDs))
 		output = append(output, e.VolumeForItem(regionID, itemID))
 	}
 

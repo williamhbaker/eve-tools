@@ -30,35 +30,41 @@ func main() {
 	db, _ := sql.Open("sqlite3", "./data.db")
 	defer db.Close()
 
-	// app := app{
-	// 	transactions: &sqlite.TransactionModel{DB: db},
-	// 	orders:       &sqlite.OrderModel{DB: db},
-	// 	itemAverages: &sqlite.ItemAverageVolumeModel{DB: db},
-	// }
+	app := app{
+		transactions: &sqlite.TransactionModel{DB: db},
+		orders:       &sqlite.OrderModel{DB: db},
+		itemAverages: &sqlite.ItemAverageVolumeModel{DB: db},
+	}
 
 	api := lib.Esi{
 		Client:          http.DefaultClient,
 		UserAgentString: "wbaker@gmail.com",
 	}
 
-	forgeOrders := api.AllOrders(forgeRegionID, 1)
+	// forgeOrders := api.AllOrders(forgeRegionID, -1)
 
-	jitaPrices := lib.AggregateOrders(forgeOrders, jitaStationID)
-	tttPrices := lib.AggregateOrders(forgeOrders, perimiterTTTStationID)
+	// jitaPrices := lib.AggregateOrders(forgeOrders, jitaStationID)
+	// tttPrices := lib.AggregateOrders(forgeOrders, perimiterTTTStationID)
 
-	api.AddNames(jitaPrices, 1000)
-	api.AddNames(tttPrices, 1000)
-
-	volumes := api.VolumeForItems(forgeRegionID, jitaPrices)
-
-	for _, val := range volumes {
-		fmt.Printf("%#v\n", val)
-	}
+	// api.AddNames(jitaPrices, 1000)
+	// api.AddNames(tttPrices, 1000)
 
 	// app.orders.LoadData(jitaStationID, jitaPrices)
 	// app.orders.LoadData(perimiterTTTStationID, tttPrices)
 
-	// margins := app.orders.GetAllMargins(jitaStationID, perimiterTTTStationID)
+	margins := app.orders.GetAllMargins(jitaStationID, perimiterTTTStationID)
+	items := []int{}
+
+	for _, val := range margins {
+		items = append(items, val.ID)
+	}
+
+	volumes := api.VolumeForItems(forgeRegionID, items[:10])
+	app.itemAverages.LoadData(forgeRegionID, volumes)
+
+	regionVolumes := app.itemAverages.GetVolumesForRegion(forgeRegionID)
+	fmt.Println(regionVolumes)
+
 	// lib.SaveJSON("./margins.json", margins)
 }
 
