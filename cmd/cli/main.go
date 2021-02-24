@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"net/http"
 	"os"
 
@@ -39,6 +40,17 @@ type tradeItem struct {
 }
 
 func main() {
+	var updatePrices bool
+	var updateVolumes bool
+	var processTransactions bool
+	var uaString string
+
+	flag.BoolVar(&updatePrices, "updatePrices", false, "Pass flag as true to update item prices from the ESI API")
+	flag.BoolVar(&updateVolumes, "updateVolumes", false, "Pass flag as true to update item volumes from the ESI API")
+	flag.BoolVar(&processTransactions, "processTransactions", true, "Pass flag as true to process the jEveAssets exported transcations file located at ./transaction_export.csv")
+	flag.StringVar(&uaString, "uaString", "user@domain.com", "The string to use as the user agent for ESI API calls - usually an email address")
+	flag.Parse()
+
 	db, _ := sql.Open("sqlite3", "./data.db")
 	defer db.Close()
 
@@ -47,7 +59,7 @@ func main() {
 
 	api := lib.Esi{
 		Client:          http.DefaultClient,
-		UserAgentString: "wbaker@gmail.com",
+		UserAgentString: uaString,
 	}
 
 	app := application{
@@ -58,19 +70,18 @@ func main() {
 		parser:       &csvparser.TransactionParser{File: file},
 	}
 
-	// This makes a bunch of API calls - saves results to DB
-	// app.updateOrdersByRegion(forgeRegionID, jitaStationID, perimiterTTTStationID)
+	if updatePrices {
+		app.updateOrdersByRegion(forgeRegionID, jitaStationID, perimiterTTTStationID)
+	}
 
-	// Just database calls
 	margins := app.orders.GetAllMargins(jitaStationID, perimiterTTTStationID)
 
-	// API calls - lots of them! - also saves results to DB
-	// app.updateItemVolumesByRegion(forgeRegionID, margins)
+	if updateVolumes {
+		app.updateItemVolumesByRegion(forgeRegionID, margins)
+	}
 
-	// Just database calls
 	volumes := app.itemAverages.GetVolumesForRegion(forgeRegionID)
 
-	// This is what ends up saving a csv
 	app.generateTradingReport("./report.csv", margins, volumes)
 
 	app.processTransactions("./transactions.csv")
