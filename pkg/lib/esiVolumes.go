@@ -18,6 +18,22 @@ type itemDailyVolume struct {
 	Volume     int     `json:"volume"`
 }
 
+// VolumeForItems gets the volume information for many items, and return a slice
+// containing the results.
+func (e *Esi) VolumeForItems(regionID int, items map[int]*models.OrderItem) []models.ItemAverageVolume {
+	output := []models.ItemAverageVolume{}
+
+	var count int
+
+	for itemID := range items {
+		count++
+		fmt.Printf("Getting volumes for item %d of %d...\n", count, len(items))
+		output = append(output, e.VolumeForItem(regionID, itemID))
+	}
+
+	return output
+}
+
 // VolumeForItem gets the volume information for a single item
 func (e *Esi) VolumeForItem(regionID, itemID int) models.ItemAverageVolume {
 	u := fmt.Sprintf(volumesFragment, regionID, itemID)

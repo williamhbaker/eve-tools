@@ -2,6 +2,8 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
+	"net/http"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -28,28 +30,30 @@ func main() {
 	db, _ := sql.Open("sqlite3", "./data.db")
 	defer db.Close()
 
-	app := app{
-		transactions: &sqlite.TransactionModel{DB: db},
-		orders:       &sqlite.OrderModel{DB: db},
-		itemAverages: &sqlite.ItemAverageVolumeModel{DB: db},
-	}
-
-	app.itemAverages.LoadData(1234, []models.ItemAverageVolume{})
-
-	// api := lib.Esi{
-	// 	Client:          http.DefaultClient,
-	// 	UserAgentString: "wbaker@gmail.com",
+	// app := app{
+	// 	transactions: &sqlite.TransactionModel{DB: db},
+	// 	orders:       &sqlite.OrderModel{DB: db},
+	// 	itemAverages: &sqlite.ItemAverageVolumeModel{DB: db},
 	// }
 
-	// api.VolumeForItem(forgeRegionID, 33520)
+	api := lib.Esi{
+		Client:          http.DefaultClient,
+		UserAgentString: "wbaker@gmail.com",
+	}
 
-	// forgeOrders := api.AllOrders(forgeRegionID, -1)
+	forgeOrders := api.AllOrders(forgeRegionID, 1)
 
-	// jitaPrices := lib.AggregateOrders(forgeOrders, jitaStationID)
-	// tttPrices := lib.AggregateOrders(forgeOrders, perimiterTTTStationID)
+	jitaPrices := lib.AggregateOrders(forgeOrders, jitaStationID)
+	tttPrices := lib.AggregateOrders(forgeOrders, perimiterTTTStationID)
 
-	// api.AddNames(jitaPrices, 1000)
-	// api.AddNames(tttPrices, 1000)
+	api.AddNames(jitaPrices, 1000)
+	api.AddNames(tttPrices, 1000)
+
+	volumes := api.VolumeForItems(forgeRegionID, jitaPrices)
+
+	for _, val := range volumes {
+		fmt.Printf("%#v\n", val)
+	}
 
 	// app.orders.LoadData(jitaStationID, jitaPrices)
 	// app.orders.LoadData(perimiterTTTStationID, tttPrices)

@@ -1,11 +1,144 @@
 package lib
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
+	"io/ioutil"
+	"net/http"
 	"reflect"
+	"regexp"
+	"sort"
+	"strconv"
 	"testing"
 
 	"github.com/wbaker85/eve-tools/pkg/models"
 )
+
+func TestVolumeForItems(t *testing.T) {
+	testRegionID := 1234
+	testItems := map[int]*models.OrderItem{
+		1: {},
+		2: {},
+		3: {},
+	}
+
+	testResData1 := []struct {
+		OrderCount int `json:"order_count"`
+		Volume     int `json:"volume"`
+	}{
+		{
+			OrderCount: 10,
+			Volume:     20,
+		},
+		{
+			OrderCount: 10,
+			Volume:     20,
+		},
+		{
+			OrderCount: 10,
+			Volume:     20,
+		},
+	}
+
+	testResData2 := []struct {
+		OrderCount int `json:"order_count"`
+		Volume     int `json:"volume"`
+	}{
+		{
+			OrderCount: 10,
+			Volume:     20,
+		},
+		{
+			OrderCount: 20,
+			Volume:     40,
+		},
+		{
+			OrderCount: 30,
+			Volume:     60,
+		},
+	}
+
+	testResData3 := []struct {
+		OrderCount int `json:"order_count"`
+		Volume     int `json:"volume"`
+	}{
+		{
+			OrderCount: 20,
+			Volume:     20,
+		},
+		{
+			OrderCount: 30,
+			Volume:     30,
+		},
+		{
+			OrderCount: 40,
+			Volume:     40,
+		},
+	}
+
+	client := newTestClient(func(r *http.Request) (*http.Response, error) {
+		re := regexp.MustCompile(`\d+$`)
+		item := re.FindString(r.URL.String())
+		itemID, _ := strconv.Atoi(item)
+
+		var body io.ReadCloser
+
+		switch itemID {
+		case 1:
+			jsonData, _ := json.Marshal(testResData1)
+			body = ioutil.NopCloser(bytes.NewReader(jsonData))
+		case 2:
+			jsonData, _ := json.Marshal(testResData2)
+			body = ioutil.NopCloser(bytes.NewReader(jsonData))
+		default:
+			jsonData, _ := json.Marshal(testResData3)
+			body = ioutil.NopCloser(bytes.NewReader(jsonData))
+		}
+
+		return &http.Response{
+			Body: body,
+		}, nil
+	})
+
+	api := Esi{
+		Client: client,
+	}
+
+	got := api.VolumeForItems(testRegionID, testItems)
+	want := []models.ItemAverageVolume{
+		{
+			RegionID:  1234,
+			ItemID:    1,
+			NumDays:   3,
+			OrdersAvg: 10,
+			VolumeAvg: 20,
+		},
+		{
+			RegionID:  1234,
+			ItemID:    2,
+			NumDays:   3,
+			OrdersAvg: 20,
+			VolumeAvg: 40,
+		},
+		{
+			RegionID:  1234,
+			ItemID:    3,
+			NumDays:   3,
+			OrdersAvg: 30,
+			VolumeAvg: 30,
+		},
+	}
+
+	sort.Slice(got, func(i, j int) bool {
+		return got[i].ItemID < got[j].ItemID
+	})
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("\ngot: \n%#v, \nwant: \n%#v", got, want)
+	}
+
+}
 
 func TestAvgForPeriod(t *testing.T) {
 	testData := []itemDailyVolume{
