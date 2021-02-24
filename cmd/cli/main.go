@@ -45,6 +45,9 @@ func main() {
 	db, _ := sql.Open("sqlite3", "./data.db")
 	defer db.Close()
 
+	file, _ := os.Open("./transaction_export.csv")
+	defer file.Close()
+
 	api := lib.Esi{
 		Client:          http.DefaultClient,
 		UserAgentString: "wbaker@gmail.com",
@@ -55,6 +58,7 @@ func main() {
 		orders:       &sqlite.OrderModel{DB: db},
 		itemAverages: &sqlite.ItemAverageVolumeModel{DB: db},
 		api:          &api,
+		parser:       &csvparser.TransactionParser{File: file},
 	}
 
 	// This makes a bunch of API calls - saves results to DB
@@ -173,18 +177,7 @@ func saveReportCSV(path string, data []tradeItem) {
 	}
 }
 
-func processTransactions() {
-	db, _ := sql.Open("sqlite3", "./data.db")
-	defer db.Close()
-
-	file, _ := os.Open("./transaction_export.csv")
-	defer file.Close()
-
-	app := app{
-		transactions: &sqlite.TransactionModel{DB: db},
-		parser:       &csvparser.TransactionParser{File: file},
-	}
-
+func (app *application) processTransactions() {
 	transactions := app.parser.ParseTransactions()
 
 	app.transactions.LoadData(transactions)
