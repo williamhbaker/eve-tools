@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -45,11 +46,15 @@ func main() {
 	var processTransactions bool
 	var uaString string
 
-	flag.BoolVar(&updatePrices, "updatePrices", false, "Pass flag as true to update item prices from the ESI API")
-	flag.BoolVar(&updateVolumes, "updateVolumes", false, "Pass flag as true to update item volumes from the ESI API")
-	flag.BoolVar(&processTransactions, "processTransactions", true, "Pass flag as true to process the jEveAssets exported transcations file located at ./transaction_export.csv")
-	flag.StringVar(&uaString, "uaString", "user@domain.com", "The string to use as the user agent for ESI API calls - usually an email address")
+	flag.BoolVar(&updatePrices, "prices", false, "Pass flag as true to update item prices from the ESI API")
+	flag.BoolVar(&updateVolumes, "volumes", false, "Pass flag as true to update item volumes from the ESI API")
+	flag.BoolVar(&processTransactions, "transactions", true, "Pass flag as true to process the jEveAssets exported transcations file located at ./transaction_export.csv")
+	flag.StringVar(&uaString, "ua", "user@domain.com", "The string to use as the user agent for ESI API calls - usually an email address")
 	flag.Parse()
+
+	fmt.Println("updateVolumes: ", updateVolumes)
+	fmt.Println("updatePrices: ", updateVolumes)
+	fmt.Println("uaString: ", uaString)
 
 	db, _ := sql.Open("sqlite3", "./data.db")
 	defer db.Close()
