@@ -80,21 +80,21 @@ func TestLoadData(t *testing.T) {
 
 	want1 := []*models.MarginItem{
 		{
-			ID:        1,
+			ItemID:    1,
 			Name:      "First Item",
 			SellPrice: 10.1,
 			BuyPrice:  6.5,
 			Margin:    (10.1 - 6.5) / 6.5 * 100,
 		},
 		{
-			ID:        2,
+			ItemID:    2,
 			Name:      "Second Item",
 			SellPrice: 10.1,
 			BuyPrice:  5.5,
 			Margin:    (10.1 - 5.5) / 5.5 * 100,
 		},
 		{
-			ID:        3,
+			ItemID:    3,
 			Name:      "Third Item",
 			SellPrice: 10.1,
 			BuyPrice:  5.5,
@@ -142,6 +142,6 @@ func sortMarginItem(m []*models.MarginItem) {
 	}
 
 	sort.Slice(m, func(i, j int) bool {
-		return m[i].ID < m[j].ID
+		return m[i].ItemID < m[j].ItemID
 	})
 }
