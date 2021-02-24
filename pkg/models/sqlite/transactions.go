@@ -67,11 +67,7 @@ func (t *TransactionModel) addMany(transactions []*models.Transaction) {
 	stmt := `INSERT INTO transactions (date, name, quantity, price, tax, value, owner, station, region, client, type) VALUES `
 	b.WriteString(stmt)
 
-	for c, row := range transactions {
-		if c%1000 == 0 {
-			fmt.Printf("added item %d of %d\n", c, len(transactions))
-		}
-
+	for _, row := range transactions {
 		sqlStr := "(%q, %q, %d, %f, %f, %f, %q, %q, %q, %q, %q),"
 		b.WriteString(fmt.Sprintf(
 			sqlStr,
