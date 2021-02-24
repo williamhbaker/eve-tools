@@ -1,8 +1,12 @@
 package main
 
-import "github.com/wbaker85/eve-tools/pkg/lib"
+import (
+	"sort"
 
-func (app *application) processTransactions() {
+	"github.com/wbaker85/eve-tools/pkg/lib"
+)
+
+func (app *application) processTransactions(path string) {
 	transactions := app.parser.ParseTransactions()
 
 	app.transactions.LoadData(transactions)
@@ -15,5 +19,9 @@ func (app *application) processTransactions() {
 		d = append(d, val)
 	}
 
-	lib.SaveJSON("./transaction_aggregations.json", d)
+	sort.Slice(d, func(i, j int) bool {
+		return d[i].Profit > d[j].Profit
+	})
+
+	saveTransactionsCSV(path, d)
 }

@@ -73,7 +73,7 @@ func main() {
 	// This is what ends up saving a csv
 	app.generateTradingReport("./report.csv", margins, volumes)
 
-	app.processTransactions()
+	app.processTransactions("./transactions.csv")
 }
 
 func (app *application) updateOrdersByRegion(regionID, sellStationID, buyStationID int) {

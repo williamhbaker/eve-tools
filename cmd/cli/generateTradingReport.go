@@ -1,6 +1,10 @@
 package main
 
-import "github.com/wbaker85/eve-tools/pkg/models"
+import (
+	"sort"
+
+	"github.com/wbaker85/eve-tools/pkg/models"
+)
 
 func (app *application) generateTradingReport(reportPath string, margins []*models.MarginItem, volumes map[int]models.ItemAverageVolume) {
 	output := []tradeItem{}
@@ -21,6 +25,10 @@ func (app *application) generateTradingReport(reportPath string, margins []*mode
 
 		output = append(output, item)
 	}
+
+	sort.Slice(output, func(i, j int) bool {
+		return output[i].maxProfit > output[j].maxProfit
+	})
 
 	saveReportCSV(reportPath, output)
 }

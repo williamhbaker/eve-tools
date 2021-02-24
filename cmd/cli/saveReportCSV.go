@@ -1,10 +1,9 @@
 package main
 
 import (
-	"encoding/csv"
 	"fmt"
-	"log"
-	"os"
+
+	"github.com/wbaker85/eve-tools/pkg/lib"
 )
 
 func saveReportCSV(path string, data []tradeItem) {
@@ -38,19 +37,5 @@ func saveReportCSV(path string, data []tradeItem) {
 		records = append(records, thisRecord)
 	}
 
-	file, _ := os.Create(path)
-
-	w := csv.NewWriter(file)
-
-	for _, record := range records {
-		if err := w.Write(record); err != nil {
-			log.Fatalln("error writing record to csv:", err)
-		}
-	}
-
-	w.Flush()
-
-	if err := w.Error(); err != nil {
-		log.Fatal(err)
-	}
+	lib.SaveCSV(path, records)
 }
