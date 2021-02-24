@@ -36,7 +36,8 @@ SELECT
 	sell_station.name AS name,
 	MAX(sell_station.buy_price, buy_station.buy_price) AS buy_price,
 	sell_station.sell_price AS sell_price,
-	(sell_station.sell_price - MAX(sell_station.buy_price, buy_station.buy_price)) / MAX(sell_station.buy_price, buy_station.buy_price) * 100 AS margin
+	(sell_station.sell_price - MAX(sell_station.buy_price, buy_station.buy_price)) / MAX(sell_station.buy_price, buy_station.buy_price) * 100 AS margin,
+	(sell_station.recent_orders + buy_station.recent_orders) AS recent_orders
 FROM "%d_orders" AS sell_station
 INNER JOIN "%d_orders" AS buy_station
 	ON sell_station.item_id = buy_station.item_id
@@ -60,6 +61,7 @@ ORDER BY margin DESC;`
 			&i.BuyPrice,
 			&i.SellPrice,
 			&i.Margin,
+			&i.RecentOrders,
 		)
 
 		output = append(output, i)
@@ -74,12 +76,12 @@ func (o *OrderModel) addMany(stationID int, data map[int]*models.OrderItem) {
 	}
 
 	var b strings.Builder
-	stmt := fmt.Sprintf(`INSERT INTO "%d_orders" (item_id, name, sell_price, buy_price) VALUES `, stationID)
+	stmt := fmt.Sprintf(`INSERT INTO "%d_orders" (item_id, name, sell_price, buy_price, recent_orders) VALUES `, stationID)
 	b.WriteString(stmt)
 
 	for _, item := range data {
-		sqlStr := `(%d, "%s", %f, %f),`
-		b.WriteString(fmt.Sprintf(sqlStr, item.ID, escapeString(item.Name), item.SellPrice, item.BuyPrice))
+		sqlStr := `(%d, "%s", %f, %f, %d),`
+		b.WriteString(fmt.Sprintf(sqlStr, item.ID, escapeString(item.Name), item.SellPrice, item.BuyPrice, item.RecentOrders))
 	}
 
 	stmt = b.String()
@@ -97,7 +99,8 @@ func (o *OrderModel) init(stationID int) {
 		item_id INT,
 		name VARCHAR(50),
 		sell_price FLOAT,
-		buy_price FLOAT
+		buy_price FLOAT,
+		recent_orders INT
 	)`
 
 	drop := `DROP TABLE "%d_orders"`

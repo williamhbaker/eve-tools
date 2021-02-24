@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"time"
 
 	"github.com/wbaker85/eve-tools/pkg/models"
 )
@@ -50,6 +51,7 @@ func AggregateOrders(items []map[string]interface{}, station int) map[int]*model
 		isBuy := i["is_buy_order"].(bool)
 		price := i["price"].(float64)
 		stationID := int(i["location_id"].(float64))
+		issued := i["issued"].(string)
 
 		if stationID != station {
 			continue
@@ -72,6 +74,10 @@ func AggregateOrders(items []map[string]interface{}, station int) map[int]*model
 			} else {
 				thisItem.BuyPrice = math.Max(thisItem.BuyPrice, price)
 			}
+
+			if timeWithinLast24hrs(issued) {
+				thisItem.RecentOrders++
+			}
 		} else {
 			if thisItem.SellPrice == 0 {
 				thisItem.SellPrice = price
@@ -82,4 +88,12 @@ func AggregateOrders(items []map[string]interface{}, station int) map[int]*model
 	}
 
 	return output
+}
+
+func timeWithinLast24hrs(timestamp string) bool {
+	t, _ := time.Parse(time.RFC3339, timestamp)
+	now := time.Now().UTC()
+	diff := now.Sub(t)
+
+	return diff < time.Duration(24*time.Hour)
 }

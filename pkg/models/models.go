@@ -19,20 +19,22 @@ type Transaction struct {
 // OrderItem is the collected information about an item based on the active buy
 // and sell orders at a given station.
 type OrderItem struct {
-	ID        int
-	Name      string
-	SellPrice float64
-	BuyPrice  float64
+	ID           int
+	Name         string
+	SellPrice    float64
+	BuyPrice     float64
+	RecentOrders int
 }
 
 // MarginItem includes details about the margin from an item based on a buy station
 // and a sell station
 type MarginItem struct {
-	ItemID    int
-	Name      string
-	SellPrice float64
-	BuyPrice  float64
-	Margin    float64
+	ItemID       int
+	Name         string
+	SellPrice    float64
+	BuyPrice     float64
+	Margin       float64
+	RecentOrders int
 }
 
 // ItemAverageVolume includes information about an item in a region, with average

@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"flag"
-	"fmt"
 	"net/http"
 	"os"
 
@@ -28,18 +27,6 @@ type application struct {
 	}
 }
 
-type tradeItem struct {
-	name      string
-	itemID    int
-	sellPrice float64
-	buyPrice  float64
-	margin    float64
-	ordersAvg int
-	volumeAvg int
-	maxProfit float64
-	numDays   int
-}
-
 func main() {
 	var updatePrices bool
 	var updateVolumes bool
@@ -51,10 +38,6 @@ func main() {
 	flag.BoolVar(&processTransactions, "transactions", true, "Pass flag as true to process the jEveAssets exported transcations file located at ./transaction_export.csv")
 	flag.StringVar(&uaString, "ua", "user@domain.com", "The string to use as the user agent for ESI API calls - usually an email address")
 	flag.Parse()
-
-	fmt.Println("updateVolumes: ", updateVolumes)
-	fmt.Println("updatePrices: ", updateVolumes)
-	fmt.Println("uaString: ", uaString)
 
 	db, _ := sql.Open("sqlite3", "./data.db")
 	defer db.Close()
