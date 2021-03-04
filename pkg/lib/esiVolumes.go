@@ -3,6 +3,7 @@ package lib
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 
 	"github.com/montanaflynn/stats"
 	"github.com/wbaker85/eve-tools/pkg/models"
@@ -45,9 +46,7 @@ func (e *Esi) VolumeForItem(regionID, itemID int) models.ItemHistoryData {
 	json.Unmarshal(bytes, &data)
 
 	data = truncateLastN(data, 30)
-
 	outliers := findOutliers(data)
-
 	cleaned := removeByIndexes(data, outliers)
 
 	averages := avgForPeriod(cleaned, 7)
@@ -55,6 +54,21 @@ func (e *Esi) VolumeForItem(regionID, itemID int) models.ItemHistoryData {
 	averages.ItemID = itemID
 
 	return averages
+}
+
+func yearlyMinMax(data []itemDailyVolume) (float64, float64) {
+	offset := int(math.Min(365, float64(len(data))))
+
+	foundMin := math.MaxFloat64
+	foundMax := -math.MaxFloat64
+
+	for idx := len(data) - offset; idx < len(data); idx++ {
+		item := data[idx]
+		foundMin = math.Min(item.Highest, foundMin)
+		foundMax = math.Max(item.Highest, foundMax)
+	}
+
+	return foundMax, foundMin
 }
 
 func truncateLastN(data []itemDailyVolume, num int) []itemDailyVolume {

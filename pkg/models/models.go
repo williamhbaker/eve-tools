@@ -45,4 +45,6 @@ type ItemHistoryData struct {
 	NumDays   int
 	OrdersAvg int
 	VolumeAvg int
+	YearMin   float64
+	YearMax   float64
 }

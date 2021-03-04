@@ -377,3 +377,26 @@ func TestFindOutliers(t *testing.T) {
 		})
 	}
 }
+
+func TestYearlyMinMax(t *testing.T) {
+	testData := []itemDailyVolume{
+		{Highest: 100.5},
+		{Highest: 90.1},
+		{Highest: 110.7},
+		{Highest: 76.3},
+		{Highest: 100.5},
+	}
+
+	wantMax := 110.7
+	wantMin := 76.3
+
+	gotMax, gotMin := yearlyMinMax(testData)
+
+	if gotMax != wantMax {
+		t.Errorf("got %.2f want %.2f", gotMax, wantMax)
+	}
+
+	if gotMin != wantMin {
+		t.Errorf("got %.2f want %.2f", gotMin, wantMin)
+	}
+}
