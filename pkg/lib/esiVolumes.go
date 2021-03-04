@@ -45,7 +45,8 @@ func (e *Esi) VolumeForItem(regionID, itemID int) models.ItemHistoryData {
 
 	json.Unmarshal(bytes, &data)
 
-	maxSellPrice, minSellPrice := yearlyMinMax(data)
+	maxSellPrice, minSellPrice := yearlyMinMax(data, true)
+	maxBuyPrice, minBuyPrice := yearlyMinMax(data, false)
 
 	data = truncateLastN(data, 30)
 	outliers := findOutliers(data)
@@ -56,11 +57,13 @@ func (e *Esi) VolumeForItem(regionID, itemID int) models.ItemHistoryData {
 	averages.ItemID = itemID
 	averages.YearMaxSell = maxSellPrice
 	averages.YearMinSell = minSellPrice
+	averages.YearMaxBuy = maxBuyPrice
+	averages.YearMinBuy = minBuyPrice
 
 	return averages
 }
 
-func yearlyMinMax(data []itemDailyVolume) (float64, float64) {
+func yearlyMinMax(data []itemDailyVolume, findSellPrice bool) (float64, float64) {
 	offset := int(math.Min(365, float64(len(data))))
 
 	foundMin := math.MaxFloat64
@@ -68,8 +71,16 @@ func yearlyMinMax(data []itemDailyVolume) (float64, float64) {
 
 	for idx := len(data) - offset; idx < len(data); idx++ {
 		item := data[idx]
-		foundMin = math.Min(item.Highest, foundMin)
-		foundMax = math.Max(item.Highest, foundMax)
+		var val float64
+
+		if findSellPrice {
+			val = item.Highest
+		} else {
+			val = item.Lowest
+		}
+
+		foundMin = math.Min(val, foundMin)
+		foundMax = math.Max(val, foundMax)
 	}
 
 	return foundMax, foundMin

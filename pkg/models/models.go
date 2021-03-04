@@ -47,4 +47,6 @@ type ItemHistoryData struct {
 	VolumeAvg   int
 	YearMinSell float64
 	YearMaxSell float64
+	YearMinBuy  float64
+	YearMaxBuy  float64
 }
