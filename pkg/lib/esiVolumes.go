@@ -45,6 +45,8 @@ func (e *Esi) VolumeForItem(regionID, itemID int) models.ItemHistoryData {
 
 	json.Unmarshal(bytes, &data)
 
+	maxSellPrice, minSellPrice := yearlyMinMax(data)
+
 	data = truncateLastN(data, 30)
 	outliers := findOutliers(data)
 	cleaned := removeByIndexes(data, outliers)
@@ -52,6 +54,8 @@ func (e *Esi) VolumeForItem(regionID, itemID int) models.ItemHistoryData {
 	averages := avgForPeriod(cleaned, 7)
 	averages.RegionID = regionID
 	averages.ItemID = itemID
+	averages.YearMax = maxSellPrice
+	averages.YearMin = minSellPrice
 
 	return averages
 }

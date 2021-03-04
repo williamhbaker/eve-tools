@@ -20,56 +20,68 @@ func TestVolumeForItems(t *testing.T) {
 	testItems := []int{1, 2, 3}
 
 	testResData1 := []struct {
-		OrderCount int `json:"order_count"`
-		Volume     int `json:"volume"`
+		OrderCount int     `json:"order_count"`
+		Volume     int     `json:"volume"`
+		Highest    float64 `json:"highest"`
 	}{
 		{
 			OrderCount: 10,
 			Volume:     20,
+			Highest:    100.5,
 		},
 		{
 			OrderCount: 10,
 			Volume:     20,
+			Highest:    70.2,
 		},
 		{
 			OrderCount: 10,
 			Volume:     20,
+			Highest:    92.7,
 		},
 	}
 
 	testResData2 := []struct {
-		OrderCount int `json:"order_count"`
-		Volume     int `json:"volume"`
+		OrderCount int     `json:"order_count"`
+		Volume     int     `json:"volume"`
+		Highest    float64 `json:"highest"`
 	}{
 		{
 			OrderCount: 10,
 			Volume:     20,
+			Highest:    100.5,
 		},
 		{
 			OrderCount: 20,
 			Volume:     40,
+			Highest:    100.5,
 		},
 		{
 			OrderCount: 30,
 			Volume:     60,
+			Highest:    100.5,
 		},
 	}
 
 	testResData3 := []struct {
-		OrderCount int `json:"order_count"`
-		Volume     int `json:"volume"`
+		OrderCount int     `json:"order_count"`
+		Volume     int     `json:"volume"`
+		Highest    float64 `json:"highest"`
 	}{
 		{
 			OrderCount: 20,
 			Volume:     20,
+			Highest:    11.6,
 		},
 		{
 			OrderCount: 30,
 			Volume:     30,
+			Highest:    12.8,
 		},
 		{
 			OrderCount: 40,
 			Volume:     40,
+			Highest:    12.9,
 		},
 	}
 
@@ -109,6 +121,8 @@ func TestVolumeForItems(t *testing.T) {
 			NumDays:   3,
 			OrdersAvg: 10,
 			VolumeAvg: 20,
+			YearMin:   70.2,
+			YearMax:   100.5,
 		},
 		{
 			RegionID:  1234,
@@ -116,6 +130,8 @@ func TestVolumeForItems(t *testing.T) {
 			NumDays:   3,
 			OrdersAvg: 20,
 			VolumeAvg: 40,
+			YearMin:   100.5,
+			YearMax:   100.5,
 		},
 		{
 			RegionID:  1234,
@@ -123,6 +139,8 @@ func TestVolumeForItems(t *testing.T) {
 			NumDays:   3,
 			OrdersAvg: 30,
 			VolumeAvg: 30,
+			YearMin:   11.6,
+			YearMax:   12.9,
 		},
 	}
 
@@ -236,7 +254,6 @@ func TestTruncateLastN(t *testing.T) {
 			assertSlices(t, got, tt.want)
 		})
 	}
-
 }
 
 func TestIndexOf(t *testing.T) {
