@@ -3,6 +3,7 @@ package lib
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 
 	"github.com/montanaflynn/stats"
 	"github.com/wbaker85/eve-tools/pkg/models"
@@ -20,8 +21,8 @@ type itemDailyVolume struct {
 
 // VolumeForItems gets the volume information for many items, and return a slice
 // containing the results.
-func (e *Esi) VolumeForItems(regionID int, itemIDs []int) []models.ItemAverageVolume {
-	output := []models.ItemAverageVolume{}
+func (e *Esi) VolumeForItems(regionID int, itemIDs []int) []models.ItemHistoryData {
+	output := []models.ItemHistoryData{}
 
 	var count int
 
@@ -35,7 +36,7 @@ func (e *Esi) VolumeForItems(regionID int, itemIDs []int) []models.ItemAverageVo
 }
 
 // VolumeForItem gets the volume information for a single item
-func (e *Esi) VolumeForItem(regionID, itemID int) models.ItemAverageVolume {
+func (e *Esi) VolumeForItem(regionID, itemID int) models.ItemHistoryData {
 	u := fmt.Sprintf(volumesFragment, regionID, itemID)
 
 	bytes, _, _ := e.get(u)
@@ -44,17 +45,45 @@ func (e *Esi) VolumeForItem(regionID, itemID int) models.ItemAverageVolume {
 
 	json.Unmarshal(bytes, &data)
 
+	maxSellPrice, minSellPrice := yearlyMinMax(data, true)
+	maxBuyPrice, minBuyPrice := yearlyMinMax(data, false)
+
 	data = truncateLastN(data, 30)
-
 	outliers := findOutliers(data)
-
 	cleaned := removeByIndexes(data, outliers)
 
 	averages := avgForPeriod(cleaned, 7)
 	averages.RegionID = regionID
 	averages.ItemID = itemID
+	averages.YearMaxSell = maxSellPrice
+	averages.YearMinSell = minSellPrice
+	averages.YearMaxBuy = maxBuyPrice
+	averages.YearMinBuy = minBuyPrice
 
 	return averages
+}
+
+func yearlyMinMax(data []itemDailyVolume, findSellPrice bool) (float64, float64) {
+	offset := int(math.Min(365, float64(len(data))))
+
+	foundMin := math.MaxFloat64
+	foundMax := -math.MaxFloat64
+
+	for idx := len(data) - offset; idx < len(data); idx++ {
+		item := data[idx]
+		var val float64
+
+		if findSellPrice {
+			val = item.Highest
+		} else {
+			val = item.Lowest
+		}
+
+		foundMin = math.Min(val, foundMin)
+		foundMax = math.Max(val, foundMax)
+	}
+
+	return foundMax, foundMin
 }
 
 func truncateLastN(data []itemDailyVolume, num int) []itemDailyVolume {
@@ -69,7 +98,7 @@ func truncateLastN(data []itemDailyVolume, num int) []itemDailyVolume {
 	return data[len(data)-n:]
 }
 
-func avgForPeriod(data []itemDailyVolume, length int) models.ItemAverageVolume {
+func avgForPeriod(data []itemDailyVolume, length int) models.ItemHistoryData {
 	var n int
 
 	totalOrders := 0
@@ -82,7 +111,7 @@ func avgForPeriod(data []itemDailyVolume, length int) models.ItemAverageVolume {
 	}
 
 	if n == 0 {
-		return models.ItemAverageVolume{}
+		return models.ItemHistoryData{}
 	}
 
 	for idx := len(data) - n; idx < len(data); idx++ {
@@ -90,7 +119,7 @@ func avgForPeriod(data []itemDailyVolume, length int) models.ItemAverageVolume {
 		totalVolume += data[idx].Volume
 	}
 
-	return models.ItemAverageVolume{
+	return models.ItemHistoryData{
 		NumDays:   n,
 		OrdersAvg: totalOrders / n,
 		VolumeAvg: totalVolume / n,

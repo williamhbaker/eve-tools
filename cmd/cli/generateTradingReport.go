@@ -17,9 +17,13 @@ type tradeItem struct {
 	volumeAvg    int
 	maxProfit    float64
 	numDays      int
+	yearMaxSell  float64
+	yearMinSell  float64
+	yearMaxBuy   float64
+	yearMinBuy   float64
 }
 
-func (app *application) generateTradingReport(reportPath string, margins []*models.MarginItem, volumes map[int]models.ItemAverageVolume) {
+func (app *application) generateTradingReport(reportPath string, margins []*models.MarginItem, volumes map[int]models.ItemHistoryData) {
 	output := []tradeItem{}
 
 	for _, val := range margins {
@@ -35,6 +39,10 @@ func (app *application) generateTradingReport(reportPath string, margins []*mode
 		item.ordersAvg = volumes[val.ItemID].OrdersAvg
 		item.volumeAvg = volumes[val.ItemID].VolumeAvg
 		item.numDays = volumes[val.ItemID].NumDays
+		item.yearMaxSell = volumes[val.ItemID].YearMaxSell
+		item.yearMinSell = volumes[val.ItemID].YearMinSell
+		item.yearMaxBuy = volumes[val.ItemID].YearMaxBuy
+		item.yearMinBuy = volumes[val.ItemID].YearMinBuy
 		item.maxProfit = profitForItem(item)
 
 		output = append(output, item)

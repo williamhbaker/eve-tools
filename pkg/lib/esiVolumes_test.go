@@ -20,56 +20,68 @@ func TestVolumeForItems(t *testing.T) {
 	testItems := []int{1, 2, 3}
 
 	testResData1 := []struct {
-		OrderCount int `json:"order_count"`
-		Volume     int `json:"volume"`
+		OrderCount int     `json:"order_count"`
+		Volume     int     `json:"volume"`
+		Highest    float64 `json:"highest"`
 	}{
 		{
 			OrderCount: 10,
 			Volume:     20,
+			Highest:    100.5,
 		},
 		{
 			OrderCount: 10,
 			Volume:     20,
+			Highest:    70.2,
 		},
 		{
 			OrderCount: 10,
 			Volume:     20,
+			Highest:    92.7,
 		},
 	}
 
 	testResData2 := []struct {
-		OrderCount int `json:"order_count"`
-		Volume     int `json:"volume"`
+		OrderCount int     `json:"order_count"`
+		Volume     int     `json:"volume"`
+		Highest    float64 `json:"highest"`
 	}{
 		{
 			OrderCount: 10,
 			Volume:     20,
+			Highest:    100.5,
 		},
 		{
 			OrderCount: 20,
 			Volume:     40,
+			Highest:    100.5,
 		},
 		{
 			OrderCount: 30,
 			Volume:     60,
+			Highest:    100.5,
 		},
 	}
 
 	testResData3 := []struct {
-		OrderCount int `json:"order_count"`
-		Volume     int `json:"volume"`
+		OrderCount int     `json:"order_count"`
+		Volume     int     `json:"volume"`
+		Highest    float64 `json:"highest"`
 	}{
 		{
 			OrderCount: 20,
 			Volume:     20,
+			Highest:    11.6,
 		},
 		{
 			OrderCount: 30,
 			Volume:     30,
+			Highest:    12.8,
 		},
 		{
 			OrderCount: 40,
 			Volume:     40,
+			Highest:    12.9,
 		},
 	}
 
@@ -102,27 +114,33 @@ func TestVolumeForItems(t *testing.T) {
 	}
 
 	got := api.VolumeForItems(testRegionID, testItems)
-	want := []models.ItemAverageVolume{
+	want := []models.ItemHistoryData{
 		{
-			RegionID:  1234,
-			ItemID:    1,
-			NumDays:   3,
-			OrdersAvg: 10,
-			VolumeAvg: 20,
+			RegionID:    1234,
+			ItemID:      1,
+			NumDays:     3,
+			OrdersAvg:   10,
+			VolumeAvg:   20,
+			YearMinSell: 70.2,
+			YearMaxSell: 100.5,
 		},
 		{
-			RegionID:  1234,
-			ItemID:    2,
-			NumDays:   3,
-			OrdersAvg: 20,
-			VolumeAvg: 40,
+			RegionID:    1234,
+			ItemID:      2,
+			NumDays:     3,
+			OrdersAvg:   20,
+			VolumeAvg:   40,
+			YearMinSell: 100.5,
+			YearMaxSell: 100.5,
 		},
 		{
-			RegionID:  1234,
-			ItemID:    3,
-			NumDays:   3,
-			OrdersAvg: 30,
-			VolumeAvg: 30,
+			RegionID:    1234,
+			ItemID:      3,
+			NumDays:     3,
+			OrdersAvg:   30,
+			VolumeAvg:   30,
+			YearMinSell: 11.6,
+			YearMaxSell: 12.9,
 		},
 	}
 
@@ -164,25 +182,25 @@ func TestAvgForPeriod(t *testing.T) {
 		name   string
 		data   []itemDailyVolume
 		length int
-		want   models.ItemAverageVolume
+		want   models.ItemHistoryData
 	}{
 		{
 			"empty list with period > list length",
 			testData[len(testData):],
 			10,
-			models.ItemAverageVolume{NumDays: 0, OrdersAvg: 0, VolumeAvg: 0},
+			models.ItemHistoryData{NumDays: 0, OrdersAvg: 0, VolumeAvg: 0},
 		},
 		{
 			"non-empty list with period > list length",
 			testData,
 			10,
-			models.ItemAverageVolume{NumDays: 5, OrdersAvg: 15, VolumeAvg: 25},
+			models.ItemHistoryData{NumDays: 5, OrdersAvg: 15, VolumeAvg: 25},
 		},
 		{
 			"period < list length",
 			testData,
 			3,
-			models.ItemAverageVolume{NumDays: 3, OrdersAvg: 15, VolumeAvg: 25},
+			models.ItemHistoryData{NumDays: 3, OrdersAvg: 15, VolumeAvg: 25},
 		},
 	}
 
@@ -236,7 +254,6 @@ func TestTruncateLastN(t *testing.T) {
 			assertSlices(t, got, tt.want)
 		})
 	}
-
 }
 
 func TestIndexOf(t *testing.T) {
@@ -375,5 +392,40 @@ func TestFindOutliers(t *testing.T) {
 			got := findOutliers(tt.hist)
 			assertSlices(t, got, tt.want)
 		})
+	}
+}
+
+func TestYearlyMinMax(t *testing.T) {
+	testData := []itemDailyVolume{
+		{Highest: 100.5, Lowest: 3.3},
+		{Highest: 90.1, Lowest: 2.1},
+		{Highest: 110.7, Lowest: 5.7},
+		{Highest: 76.3, Lowest: 2.3},
+		{Highest: 100.5, Lowest: 7.1},
+	}
+
+	wantSellMax := 110.7
+	wantSellMin := 76.3
+
+	wantBuyMax := 7.1
+	wantBuyMin := 2.1
+
+	gotSellMax, gotSellMin := yearlyMinMax(testData, true)
+	gotBuyMax, gotBuyMin := yearlyMinMax(testData, false)
+
+	if gotSellMax != wantSellMax {
+		t.Errorf("got %.2f want %.2f", gotSellMax, wantSellMax)
+	}
+
+	if gotSellMin != wantSellMin {
+		t.Errorf("got %.2f want %.2f", gotSellMin, wantSellMin)
+	}
+
+	if gotBuyMax != wantBuyMax {
+		t.Errorf("got %.2f want %.2f", gotBuyMax, wantBuyMax)
+	}
+
+	if gotBuyMin != wantBuyMin {
+		t.Errorf("got %.2f want %.2f", gotBuyMin, wantBuyMin)
 	}
 }

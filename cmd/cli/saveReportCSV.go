@@ -19,6 +19,10 @@ func saveReportCSV(path string, data []tradeItem) {
 			"volumeAvg",
 			"maxProfit",
 			"numDays",
+			"year_max_sell",
+			"year_min_sell",
+			"year_max_buy",
+			"year_min_buy",
 		},
 	}
 
@@ -34,6 +38,10 @@ func saveReportCSV(path string, data []tradeItem) {
 			fmt.Sprintf("%d", item.volumeAvg),
 			fmt.Sprintf("%.2f", item.maxProfit),
 			fmt.Sprintf("%d", item.numDays),
+			fmt.Sprintf("%.2f", item.yearMaxSell),
+			fmt.Sprintf("%.2f", item.yearMinSell),
+			fmt.Sprintf("%.2f", item.yearMaxBuy),
+			fmt.Sprintf("%.2f", item.yearMinBuy),
 		}
 
 		records = append(records, thisRecord)

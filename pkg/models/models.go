@@ -37,12 +37,16 @@ type MarginItem struct {
 	RecentOrders int
 }
 
-// ItemAverageVolume includes information about an item in a region, with average
-// values for that item over the given time period.
-type ItemAverageVolume struct {
-	RegionID  int
-	ItemID    int
-	NumDays   int
-	OrdersAvg int
-	VolumeAvg int
+// ItemHistoryData includes information about an item in a region, with values
+// derived from historical analysis.
+type ItemHistoryData struct {
+	RegionID    int
+	ItemID      int
+	NumDays     int
+	OrdersAvg   int
+	VolumeAvg   int
+	YearMinSell float64
+	YearMaxSell float64
+	YearMinBuy  float64
+	YearMaxBuy  float64
 }
