@@ -20,8 +20,8 @@ type itemDailyVolume struct {
 
 // VolumeForItems gets the volume information for many items, and return a slice
 // containing the results.
-func (e *Esi) VolumeForItems(regionID int, itemIDs []int) []models.ItemAverageVolume {
-	output := []models.ItemAverageVolume{}
+func (e *Esi) VolumeForItems(regionID int, itemIDs []int) []models.ItemHistoryData {
+	output := []models.ItemHistoryData{}
 
 	var count int
 
@@ -35,7 +35,7 @@ func (e *Esi) VolumeForItems(regionID int, itemIDs []int) []models.ItemAverageVo
 }
 
 // VolumeForItem gets the volume information for a single item
-func (e *Esi) VolumeForItem(regionID, itemID int) models.ItemAverageVolume {
+func (e *Esi) VolumeForItem(regionID, itemID int) models.ItemHistoryData {
 	u := fmt.Sprintf(volumesFragment, regionID, itemID)
 
 	bytes, _, _ := e.get(u)
@@ -69,7 +69,7 @@ func truncateLastN(data []itemDailyVolume, num int) []itemDailyVolume {
 	return data[len(data)-n:]
 }
 
-func avgForPeriod(data []itemDailyVolume, length int) models.ItemAverageVolume {
+func avgForPeriod(data []itemDailyVolume, length int) models.ItemHistoryData {
 	var n int
 
 	totalOrders := 0
@@ -82,7 +82,7 @@ func avgForPeriod(data []itemDailyVolume, length int) models.ItemAverageVolume {
 	}
 
 	if n == 0 {
-		return models.ItemAverageVolume{}
+		return models.ItemHistoryData{}
 	}
 
 	for idx := len(data) - n; idx < len(data); idx++ {
@@ -90,7 +90,7 @@ func avgForPeriod(data []itemDailyVolume, length int) models.ItemAverageVolume {
 		totalVolume += data[idx].Volume
 	}
 
-	return models.ItemAverageVolume{
+	return models.ItemHistoryData{
 		NumDays:   n,
 		OrdersAvg: totalOrders / n,
 		VolumeAvg: totalVolume / n,

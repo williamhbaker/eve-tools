@@ -19,7 +19,7 @@ type tradeItem struct {
 	numDays      int
 }
 
-func (app *application) generateTradingReport(reportPath string, margins []*models.MarginItem, volumes map[int]models.ItemAverageVolume) {
+func (app *application) generateTradingReport(reportPath string, margins []*models.MarginItem, volumes map[int]models.ItemHistoryData) {
 	output := []tradeItem{}
 
 	for _, val := range margins {

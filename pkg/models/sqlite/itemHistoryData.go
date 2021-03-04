@@ -9,18 +9,18 @@ import (
 	"github.com/wbaker85/eve-tools/pkg/models"
 )
 
-// ItemAverageVolumeModel deals with average volume data for an item
-type ItemAverageVolumeModel struct {
+// ItemHistoryDataModel deals with average volume data for an item
+type ItemHistoryDataModel struct {
 	DB *sql.DB
 }
 
 // LoadData loads a slice of averages into the database based on a regionID
-func (i *ItemAverageVolumeModel) LoadData(regionID int, averages []models.ItemAverageVolume) {
+func (i *ItemHistoryDataModel) LoadData(regionID int, averages []models.ItemHistoryData) {
 	i.init(regionID)
 	i.addMany(regionID, averages)
 }
 
-func (i *ItemAverageVolumeModel) addMany(regionID int, averages []models.ItemAverageVolume) {
+func (i *ItemHistoryDataModel) addMany(regionID int, averages []models.ItemHistoryData) {
 	if len(averages) == 0 {
 		return
 	}
@@ -43,7 +43,7 @@ func (i *ItemAverageVolumeModel) addMany(regionID int, averages []models.ItemAve
 	}
 }
 
-func (i *ItemAverageVolumeModel) init(regionID int) {
+func (i *ItemHistoryDataModel) init(regionID int) {
 	stmt := `CREATE TABLE "%d_averages" (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		item_id INT,
@@ -64,7 +64,7 @@ func (i *ItemAverageVolumeModel) init(regionID int) {
 
 // GetVolumesForRegion returns a list of all items in the region (in the database)
 // with their volumes
-func (i *ItemAverageVolumeModel) GetVolumesForRegion(regionID int) map[int]models.ItemAverageVolume {
+func (i *ItemHistoryDataModel) GetVolumesForRegion(regionID int) map[int]models.ItemHistoryData {
 	stmt := `SELECT item_id, num_days, orders_avg, volume_avg FROM "%d_averages"`
 
 	rows, err := i.DB.Query(fmt.Sprintf(stmt, regionID))
@@ -72,10 +72,10 @@ func (i *ItemAverageVolumeModel) GetVolumesForRegion(regionID int) map[int]model
 		log.Fatal(err)
 	}
 
-	output := make(map[int]models.ItemAverageVolume)
+	output := make(map[int]models.ItemHistoryData)
 
 	for rows.Next() {
-		i := models.ItemAverageVolume{}
+		i := models.ItemHistoryData{}
 		err = rows.Scan(
 			&i.ItemID,
 			&i.NumDays,

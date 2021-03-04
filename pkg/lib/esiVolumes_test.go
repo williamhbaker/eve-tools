@@ -102,7 +102,7 @@ func TestVolumeForItems(t *testing.T) {
 	}
 
 	got := api.VolumeForItems(testRegionID, testItems)
-	want := []models.ItemAverageVolume{
+	want := []models.ItemHistoryData{
 		{
 			RegionID:  1234,
 			ItemID:    1,
@@ -164,25 +164,25 @@ func TestAvgForPeriod(t *testing.T) {
 		name   string
 		data   []itemDailyVolume
 		length int
-		want   models.ItemAverageVolume
+		want   models.ItemHistoryData
 	}{
 		{
 			"empty list with period > list length",
 			testData[len(testData):],
 			10,
-			models.ItemAverageVolume{NumDays: 0, OrdersAvg: 0, VolumeAvg: 0},
+			models.ItemHistoryData{NumDays: 0, OrdersAvg: 0, VolumeAvg: 0},
 		},
 		{
 			"non-empty list with period > list length",
 			testData,
 			10,
-			models.ItemAverageVolume{NumDays: 5, OrdersAvg: 15, VolumeAvg: 25},
+			models.ItemHistoryData{NumDays: 5, OrdersAvg: 15, VolumeAvg: 25},
 		},
 		{
 			"period < list length",
 			testData,
 			3,
-			models.ItemAverageVolume{NumDays: 3, OrdersAvg: 15, VolumeAvg: 25},
+			models.ItemHistoryData{NumDays: 3, OrdersAvg: 15, VolumeAvg: 25},
 		},
 	}
 

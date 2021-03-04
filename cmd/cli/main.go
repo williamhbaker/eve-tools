@@ -20,7 +20,7 @@ const perimiterTTTStationID = 1028858195912
 type application struct {
 	transactions *sqlite.TransactionModel
 	orders       *sqlite.OrderModel
-	itemAverages *sqlite.ItemAverageVolumeModel
+	itemAverages *sqlite.ItemHistoryDataModel
 	api          *lib.Esi
 	parser       interface {
 		ParseTransactions() []*models.Transaction
@@ -53,7 +53,7 @@ func main() {
 	app := application{
 		transactions: &sqlite.TransactionModel{DB: db},
 		orders:       &sqlite.OrderModel{DB: db},
-		itemAverages: &sqlite.ItemAverageVolumeModel{DB: db},
+		itemAverages: &sqlite.ItemHistoryDataModel{DB: db},
 		api:          &api,
 		parser:       &csvparser.TransactionParser{File: file},
 	}
