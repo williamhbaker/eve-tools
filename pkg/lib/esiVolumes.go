@@ -54,8 +54,8 @@ func (e *Esi) VolumeForItem(regionID, itemID int) models.ItemHistoryData {
 	averages := avgForPeriod(cleaned, 7)
 	averages.RegionID = regionID
 	averages.ItemID = itemID
-	averages.YearMax = maxSellPrice
-	averages.YearMin = minSellPrice
+	averages.YearMaxSell = maxSellPrice
+	averages.YearMinSell = minSellPrice
 
 	return averages
 }

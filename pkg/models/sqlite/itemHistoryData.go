@@ -26,12 +26,18 @@ func (i *ItemHistoryDataModel) addMany(regionID int, averages []models.ItemHisto
 	}
 
 	var b strings.Builder
-	stmt := fmt.Sprintf(`INSERT INTO "%d_averages" (item_id, num_days, orders_avg, volume_avg) VALUES `, regionID)
+	stmt := fmt.Sprintf(`INSERT INTO "%d_averages" (item_id, num_days, orders_avg, volume_avg, highest_sell, lowest_sell) VALUES `, regionID)
 	b.WriteString(stmt)
 
 	for _, item := range averages {
-		sqlStr := `(%d, "%d", %d, %d),`
-		b.WriteString(fmt.Sprintf(sqlStr, item.ItemID, item.NumDays, item.OrdersAvg, item.VolumeAvg))
+		sqlStr := `(%d, "%d", %d, %d, %.2f, %.2f),`
+		b.WriteString(fmt.Sprintf(sqlStr,
+			item.ItemID,
+			item.NumDays,
+			item.OrdersAvg,
+			item.VolumeAvg,
+			item.YearMaxSell,
+			item.YearMinSell))
 	}
 
 	stmt = b.String()
@@ -49,7 +55,9 @@ func (i *ItemHistoryDataModel) init(regionID int) {
 		item_id INT,
 		num_days INT,
 		orders_avg INT,
-		volume_avg INT
+		volume_avg INT,
+		highest_sell FLOAT,
+		lowest_sell FLOAT
 	)`
 
 	drop := `DROP TABLE "%d_averages"`
@@ -65,7 +73,7 @@ func (i *ItemHistoryDataModel) init(regionID int) {
 // GetVolumesForRegion returns a list of all items in the region (in the database)
 // with their volumes
 func (i *ItemHistoryDataModel) GetVolumesForRegion(regionID int) map[int]models.ItemHistoryData {
-	stmt := `SELECT item_id, num_days, orders_avg, volume_avg FROM "%d_averages"`
+	stmt := `SELECT item_id, num_days, orders_avg, volume_avg, highest_sell, lowest_sell FROM "%d_averages"`
 
 	rows, err := i.DB.Query(fmt.Sprintf(stmt, regionID))
 	if err != nil {
@@ -81,6 +89,8 @@ func (i *ItemHistoryDataModel) GetVolumesForRegion(regionID int) map[int]models.
 			&i.NumDays,
 			&i.OrdersAvg,
 			&i.VolumeAvg,
+			&i.YearMaxSell,
+			&i.YearMinSell,
 		)
 
 		if err != nil {

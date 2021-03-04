@@ -40,11 +40,11 @@ type MarginItem struct {
 // ItemHistoryData includes information about an item in a region, with values
 // derived from historical analysis.
 type ItemHistoryData struct {
-	RegionID  int
-	ItemID    int
-	NumDays   int
-	OrdersAvg int
-	VolumeAvg int
-	YearMin   float64
-	YearMax   float64
+	RegionID    int
+	ItemID      int
+	NumDays     int
+	OrdersAvg   int
+	VolumeAvg   int
+	YearMinSell float64
+	YearMaxSell float64
 }

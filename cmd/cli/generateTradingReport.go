@@ -17,6 +17,8 @@ type tradeItem struct {
 	volumeAvg    int
 	maxProfit    float64
 	numDays      int
+	yearMaxSell  float64
+	yearMinSell  float64
 }
 
 func (app *application) generateTradingReport(reportPath string, margins []*models.MarginItem, volumes map[int]models.ItemHistoryData) {
@@ -35,6 +37,8 @@ func (app *application) generateTradingReport(reportPath string, margins []*mode
 		item.ordersAvg = volumes[val.ItemID].OrdersAvg
 		item.volumeAvg = volumes[val.ItemID].VolumeAvg
 		item.numDays = volumes[val.ItemID].NumDays
+		item.yearMaxSell = volumes[val.ItemID].YearMaxSell
+		item.yearMinSell = volumes[val.ItemID].YearMinSell
 		item.maxProfit = profitForItem(item)
 
 		output = append(output, item)
