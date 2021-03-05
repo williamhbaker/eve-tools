@@ -11,6 +11,10 @@ func saveReportCSV(path string, data []tradeItem) {
 		{
 			"name",
 			"item_id",
+			"group",
+			"category",
+			"meta",
+			"tech",
 			"sell_price",
 			"buy_price",
 			"margin",
@@ -30,6 +34,10 @@ func saveReportCSV(path string, data []tradeItem) {
 		thisRecord := []string{
 			fmt.Sprintf("%s", item.name),
 			fmt.Sprintf("%d", item.itemID),
+			fmt.Sprintf("%s", item.group),
+			fmt.Sprintf("%s", item.category),
+			fmt.Sprintf("%d", item.meta),
+			fmt.Sprintf("%s", item.tech),
 			fmt.Sprintf("%.2f", item.sellPrice),
 			fmt.Sprintf("%.2f", item.buyPrice),
 			fmt.Sprintf("%.2f", item.margin),
