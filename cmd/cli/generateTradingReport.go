@@ -26,6 +26,8 @@ type tradeItem struct {
 	yearMinSell  float64
 	yearMaxBuy   float64
 	yearMinBuy   float64
+	relativeBuy  float64
+	relativeSell float64
 }
 
 func (app *application) generateTradingReport(reportPath string, margins []*models.MarginItem, volumes map[int]models.ItemHistoryData, metaData map[int]lib.ItemData) {
@@ -48,6 +50,8 @@ func (app *application) generateTradingReport(reportPath string, margins []*mode
 		item.yearMinSell = volumes[val.ItemID].YearMinSell
 		item.yearMaxBuy = volumes[val.ItemID].YearMaxBuy
 		item.yearMinBuy = volumes[val.ItemID].YearMinBuy
+		item.relativeBuy = relativePrice(item.yearMaxBuy, item.yearMinBuy, item.buyPrice)
+		item.relativeSell = relativePrice(item.yearMaxSell, item.yearMinSell, item.sellPrice)
 		item.maxProfit = profitForItem(item)
 
 		item.group = metaData[val.ItemID].Group
@@ -67,4 +71,15 @@ func (app *application) generateTradingReport(reportPath string, margins []*mode
 
 func profitForItem(i tradeItem) float64 {
 	return 0.5 * float64(i.volumeAvg) * (i.sellPrice - i.buyPrice)
+}
+
+func relativePrice(max, min, current float64) float64 {
+	numerator := current - min
+	denominator := max - min
+
+	if denominator <= 0 || numerator <= 0 {
+		return 0
+	}
+
+	return (numerator / denominator) * 100
 }
