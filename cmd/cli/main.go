@@ -69,8 +69,9 @@ func main() {
 	}
 
 	volumes := app.itemAverages.GetVolumesForRegion(forgeRegionID)
+	metaData := lib.ParseItemData("./item_data.csv")
 
-	app.generateTradingReport("./report.csv", margins, volumes)
+	app.generateTradingReport("./report.csv", margins, volumes, metaData)
 
 	app.processTransactions("./transactions.csv")
 }

@@ -3,12 +3,17 @@ package main
 import (
 	"sort"
 
+	"github.com/wbaker85/eve-tools/pkg/lib"
 	"github.com/wbaker85/eve-tools/pkg/models"
 )
 
 type tradeItem struct {
 	name         string
 	itemID       int
+	group        string
+	category     string
+	meta         int
+	tech         string
 	sellPrice    float64
 	buyPrice     float64
 	margin       float64
@@ -23,7 +28,7 @@ type tradeItem struct {
 	yearMinBuy   float64
 }
 
-func (app *application) generateTradingReport(reportPath string, margins []*models.MarginItem, volumes map[int]models.ItemHistoryData) {
+func (app *application) generateTradingReport(reportPath string, margins []*models.MarginItem, volumes map[int]models.ItemHistoryData, metaData map[int]lib.ItemData) {
 	output := []tradeItem{}
 
 	for _, val := range margins {
@@ -44,6 +49,11 @@ func (app *application) generateTradingReport(reportPath string, margins []*mode
 		item.yearMaxBuy = volumes[val.ItemID].YearMaxBuy
 		item.yearMinBuy = volumes[val.ItemID].YearMinBuy
 		item.maxProfit = profitForItem(item)
+
+		item.group = metaData[val.ItemID].Group
+		item.category = metaData[val.ItemID].Category
+		item.meta = metaData[val.ItemID].Meta
+		item.tech = metaData[val.ItemID].Tech
 
 		output = append(output, item)
 	}
