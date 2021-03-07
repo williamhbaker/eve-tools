@@ -26,6 +26,7 @@ func main() {
 	var newClientSecret string
 	var addCharacter bool
 
+	// TODO: User Agent String
 	flag.StringVar(&newClientID, "id", "", "ID string to save as the client ID - passing this value will reset it in the database")
 	flag.StringVar(&newClientSecret, "secret", "", "String value for the client secret - passing this value will reset it in the database")
 	flag.BoolVar(&addCharacter, "add-char", false, "Set true if you want to register a new character with the application")
@@ -62,6 +63,6 @@ func main() {
 		}
 
 		app.authToken.RegisterToken(token)
-		fmt.Println(app.authToken.GetToken())
+		fmt.Println(app.authorizedRequest(charIDURL, "GET"))
 	}
 }

@@ -10,6 +10,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/wbaker85/eve-tools/pkg/models"
 )
 
 const tokenURL = "https://login.eveonline.com/v2/oauth/token"
@@ -41,6 +43,60 @@ func GetNewToken(listenURL, clientID, clientSecret string) Token {
 	}()
 
 	return <-c
+}
+
+// CurrentToken evaluates the provided token. If its expired, a refreshed token
+// is returned, along with a bool indicating if the token was refreshed or not
+func CurrentToken(t models.AuthToken, clientID, clientSecret string) (Token, bool) {
+	now := time.Now().Unix()
+
+	if t.Issued+int64(t.ExpiresIn) < (now - 60) {
+		return refreshToken(t, clientID, clientSecret), true
+	}
+
+	return Token{
+		AccessToken:  t.AccessToken,
+		ExpiresIn:    t.ExpiresIn,
+		RefreshToken: t.RefreshToken,
+		Issued:       t.Issued,
+	}, false
+}
+
+func refreshToken(t models.AuthToken, clientID, clientSecret string) Token {
+	bodyString := fmt.Sprintf("grant_type=refresh_token&refresh_token=%s", t.RefreshToken)
+	authCredsString := fmt.Sprintf("%v:%v", clientID, clientSecret)
+	encodedAuthCreds := "Basic " + base64.StdEncoding.EncodeToString([]byte(authCredsString))
+
+	reqURL, _ := url.Parse(tokenURL)
+	reqBody := ioutil.NopCloser(strings.NewReader(bodyString))
+	req := &http.Request{
+		Method: "POST",
+		URL:    reqURL,
+		Header: map[string][]string{
+			"Content-Type":  {"application/x-www-form-urlencoded"},
+			"Authorization": {encodedAuthCreds},
+			"Host":          {tokenPostHost},
+		},
+		Body: reqBody,
+	}
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	data, _ := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+
+	var newToken Token
+	err = json.Unmarshal(data, &newToken)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	newToken.Issued = time.Now().Unix()
+
+	return newToken
 }
 
 func requestEsiToken(authCode, clientID, secret string) Token {
