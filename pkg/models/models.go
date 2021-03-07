@@ -50,3 +50,8 @@ type ItemHistoryData struct {
 	YearMinBuy  float64
 	YearMaxBuy  float64
 }
+
+// ClientID is used by the esi login to register the specified client.
+type ClientID struct {
+	value string
+}
