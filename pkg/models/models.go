@@ -55,3 +55,15 @@ type ItemHistoryData struct {
 type ClientID struct {
 	value string
 }
+
+// ClientSecret is also used by the esi login.
+type ClientSecret struct {
+	value string
+}
+
+// AuthToken is an ESI auth token
+type AuthToken struct {
+	AccessToken  string
+	ExpiresIn    int
+	RefreshToken string
+}
