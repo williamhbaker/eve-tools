@@ -21,16 +21,17 @@ func (a *AuthTokenModel) RegisterToken(t models.AuthToken) {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			access_token TEXT,
 			expires_in INT,
-			refresh_token TEXT
+			refresh_token TEXT,
+			issued INT
 		)`)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	stmt := `INSERT INTO auth_token (access_token, expires_in, refresh_token) VALUES (%q, %d, %q)`
+	stmt := `INSERT INTO auth_token (access_token, expires_in, refresh_token, issued) VALUES (%q, %d, %q, %d)`
 
-	_, err = a.DB.Exec(fmt.Sprintf(stmt, t.AccessToken, t.ExpiresIn, t.RefreshToken))
+	_, err = a.DB.Exec(fmt.Sprintf(stmt, t.AccessToken, t.ExpiresIn, t.RefreshToken, t.Issued))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -40,7 +41,7 @@ func (a *AuthTokenModel) RegisterToken(t models.AuthToken) {
 func (a *AuthTokenModel) GetToken() models.AuthToken {
 	var output models.AuthToken
 
-	stmt := `SELECT access_token, expires_in, refresh_token FROM auth_token`
+	stmt := `SELECT access_token, expires_in, refresh_token, issued FROM auth_token`
 
 	rows, err := a.DB.Query(stmt)
 	if err != nil {
@@ -48,7 +49,7 @@ func (a *AuthTokenModel) GetToken() models.AuthToken {
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&output.AccessToken, &output.ExpiresIn, &output.RefreshToken)
+		err = rows.Scan(&output.AccessToken, &output.ExpiresIn, &output.RefreshToken, &output.Issued)
 		if err != nil {
 			log.Fatal(err)
 		}

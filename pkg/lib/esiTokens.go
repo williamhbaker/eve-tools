@@ -9,16 +9,18 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 const tokenURL = "https://login.eveonline.com/v2/oauth/token"
 const tokenPostHost = "login.eveonline.com"
 
-// Token is the token
+// Token is the token. Issued is the number of seconds since the unix epoch.
 type Token struct {
 	AccessToken  string `json:"access_token"`
 	ExpiresIn    int    `json:"expires_in"`
 	RefreshToken string `json:"refresh_token"`
+	Issued       int64
 }
 
 // GetNewToken starts a server to listen for the callback from the ESI SSO.
@@ -72,6 +74,8 @@ func requestEsiToken(authCode, clientID, secret string) Token {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	t.Issued = time.Now().Unix()
 
 	return t
 }

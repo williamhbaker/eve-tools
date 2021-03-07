@@ -66,4 +66,5 @@ type AuthToken struct {
 	AccessToken  string
 	ExpiresIn    int
 	RefreshToken string
+	Issued       int64
 }

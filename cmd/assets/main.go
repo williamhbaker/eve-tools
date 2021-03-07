@@ -58,9 +58,10 @@ func main() {
 			AccessToken:  gotToken.AccessToken,
 			ExpiresIn:    gotToken.ExpiresIn,
 			RefreshToken: gotToken.RefreshToken,
+			Issued:       gotToken.Issued,
 		}
 
 		app.authToken.RegisterToken(token)
-		fmt.Printf("Token is %#v\n", app.authToken.GetToken())
+		fmt.Println(app.authToken.GetToken())
 	}
 }
