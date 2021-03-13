@@ -68,3 +68,21 @@ type AuthToken struct {
 	RefreshToken string
 	Issued       int64
 }
+
+// CharacterOrder is the data for an order from a character
+type CharacterOrder struct {
+	Name       string
+	Duration   int
+	IsBuy      bool
+	Issued     string
+	LocationID int
+	MinVolume  int
+	OrderID    int
+	Price      float64
+	Range      string
+	RegionID   int
+	State      string
+	TypeID     int
+	VolRemain  int
+	VolTotal   int
+}

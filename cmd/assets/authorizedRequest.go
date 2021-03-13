@@ -12,8 +12,9 @@ import (
 )
 
 const charIDURL = "https://login.eveonline.com/oauth/verify"
+const ordersURL = "https://esi.evetech.net/v1/characters/%d/orders"
 
-func (app *application) authorizedRequest(url, method string) string {
+func (app *application) authorizedRequest(url, method string) []byte {
 	t, refreshed := lib.CurrentToken(app.authToken.GetToken(), app.clientID.GetID(), app.clientSecret.GetSecret())
 	if refreshed {
 		app.authToken.RegisterToken(models.AuthToken{
@@ -25,10 +26,10 @@ func (app *application) authorizedRequest(url, method string) string {
 	}
 
 	if method == "GET" {
-		return string(app.authorizedGet(url))
+		return app.authorizedGet(url)
 	}
 
-	return ""
+	return []byte("")
 }
 
 func (app *application) authorizedGet(u string) []byte {

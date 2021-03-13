@@ -27,16 +27,17 @@ func (e *Esi) AddNames(items map[int]*models.OrderItem, pageSize int) {
 }
 
 func (e *Esi) getNamesFromIDList(l []int, i map[int]*models.OrderItem) {
-	names := e.itemNameList(l)
+	names := e.ItemNameList(l)
 
 	for id, name := range names {
 		i[id].Name = name
 	}
 }
 
-func (e *Esi) itemNameList(list []int) map[int]string {
+// ItemNameList gets a list of item names from integer item ids
+func (e *Esi) ItemNameList(list []int) map[int]string {
 	output := make(map[int]string)
-	body := fmt.Sprintf("%v", list)
+	body := fmt.Sprintf("%v", uniqueInts(list))
 	body = strings.ReplaceAll(body, " ", ",")
 
 	res, _, _ := e.post(namesFragment, body)
@@ -48,6 +49,21 @@ func (e *Esi) itemNameList(list []int) map[int]string {
 		id := int(i["id"].(float64))
 		name := i["name"].(string)
 		output[id] = name
+	}
+
+	return output
+}
+
+func uniqueInts(i []int) []int {
+	seen := make(map[int]struct{})
+	output := []int{}
+
+	for _, v := range i {
+		_, ok := seen[v]
+		if !ok {
+			seen[v] = struct{}{}
+			output = append(output, v)
+		}
 	}
 
 	return output

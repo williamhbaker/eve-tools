@@ -109,7 +109,7 @@ func TestItemNameList(t *testing.T) {
 	listSlice := []int{3253, 52275, 30486}
 	listString := "[3253,52275,30486]"
 
-	got := e.itemNameList(listSlice)
+	got := e.ItemNameList(listSlice)
 
 	if spyBody != listString {
 		t.Errorf("\ngot %q\nwant %q", spyBody, listString)
@@ -118,5 +118,4 @@ func TestItemNameList(t *testing.T) {
 	if !reflect.DeepEqual(got, wantNamesMap) {
 		t.Errorf("\ngot %v\nwant %v", got, wantNamesMap)
 	}
-
 }

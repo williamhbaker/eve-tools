@@ -13,7 +13,7 @@ import (
 
 const callbackURL = "http://localhost:4949/esi"
 const listenURL = ":4949"
-const scopes = "esi-assets.read_assets.v1"
+const scopes = "esi-assets.read_assets.v1 esi-markets.read_character_orders.v1"
 
 type application struct {
 	clientID     *sqlite.ClientIDModel
@@ -63,6 +63,10 @@ func main() {
 		}
 
 		app.authToken.RegisterToken(token)
-		fmt.Println(app.authorizedRequest(charIDURL, "GET"))
+		fmt.Println(string(app.authorizedRequest(charIDURL, "GET")))
+	}
+
+	if newClientID == "" && newClientSecret == "" && !addCharacter {
+		app.getCharacterOrders()
 	}
 }
