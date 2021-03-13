@@ -101,17 +101,25 @@ func main() {
 		app.populateCharacterOrders()
 		app.populateCharacterAssets()
 
-		// hangarAssets := app.characterAssets.GetGrouped()
-		// escrowAssets := app.characterOrders.SellingInventory()
+		hangarAssets := app.characterAssets.GetGrouped()
+		escrowAssets := app.characterOrders.SellingInventory()
 
 		rules := parseRules("./trade_rules.csv")
 		prices := app.orders.BuyPriceTable(jitaStationID, perimiterTTTStationID)
 
 		pricedOut := tooExpensive(prices, rules)
+		tooMuch := tooMuchInventory(hangarAssets, escrowAssets, rules)
 
+		fmt.Println("stuff is too expensive")
 		for _, val := range pricedOut {
 			fmt.Println(val)
 		}
+
+		fmt.Println("too much stuff")
+		for _, val := range tooMuch {
+			fmt.Println(val)
+		}
+
 	}
 }
 
