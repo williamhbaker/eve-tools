@@ -1,6 +1,8 @@
 package main
 
-import "github.com/wbaker85/eve-tools/pkg/models"
+import (
+	"github.com/wbaker85/eve-tools/pkg/models"
+)
 
 func tooExpensive(prices map[string]float64, rules []itemRule) []string {
 	output := []string{}
@@ -60,24 +62,6 @@ func shouldBeBuying(rules []itemRule, pricedOut, tooMuch []string) []string {
 	return output
 }
 
-func buyingButShouldNotBe(am, should []string) []string {
-	output := []string{}
-
-	sMap := make(map[string]struct{})
-	for _, val := range should {
-		sMap[val] = struct{}{}
-	}
-
-	for _, val := range am {
-		_, ok := sMap[val]
-		if !ok {
-			output = append(output, val)
-		}
-	}
-
-	return output
-}
-
 func stringSliceToMap(s1, s2 []string) map[string]bool {
 	output := make(map[string]bool)
 
@@ -87,6 +71,42 @@ func stringSliceToMap(s1, s2 []string) map[string]bool {
 
 	for _, val := range s2 {
 		output[val] = true
+	}
+
+	return output
+}
+
+func shouldBeSelling(inventory []models.CharacterAsset, rules []itemRule) []string {
+	invMap := make(map[string]int)
+
+	for _, val := range rules {
+		invMap[val.ItemName] = val.MinSellLotSize
+	}
+
+	output := []string{}
+
+	for _, val := range inventory {
+		if invMap[val.Name] > 0 && val.Quantity >= invMap[val.Name] {
+			output = append(output, val.Name)
+		}
+	}
+
+	return output
+}
+
+func sliceDiff(base, comp []string) []string {
+	compMap := make(map[string]struct{})
+	for _, val := range comp {
+		compMap[val] = struct{}{}
+	}
+
+	output := []string{}
+
+	for _, val := range base {
+		_, ok := compMap[val]
+		if !ok {
+			output = append(output, val)
+		}
 	}
 
 	return output

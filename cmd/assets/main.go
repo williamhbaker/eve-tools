@@ -36,12 +36,14 @@ func main() {
 	var newClientID string
 	var newClientSecret string
 	var addCharacter bool
+	var smallSellThreshold float64
 	var uaString string
 
 	flag.StringVar(&newClientID, "id", "", "ID string to save as the client ID - passing this value will reset it in the database")
 	flag.StringVar(&newClientSecret, "secret", "", "String value for the client secret - passing this value will reset it in the database")
 	flag.BoolVar(&addCharacter, "add-char", false, "Set true if you want to register a new character with the application")
 	flag.StringVar(&uaString, "ua", "", "The string to use as the user agent for ESI API calls - usually an email address. Provide this to update prices before doing the rest.")
+	flag.Float64Var(&smallSellThreshold, "small-sell", 5000000, "Threshold for what determines if a sell order is small or not. Default is 5,000,000.")
 	flag.Parse()
 
 	db, _ := sql.Open("sqlite3", "./data.db")
@@ -111,13 +113,17 @@ func main() {
 		tooMuch := tooMuchInventory(hangarAssets, escrowAssets, rules)
 		allBuys := app.characterOrders.Orders(true)
 		shouldBuy := shouldBeBuying(rules, pricedOut, tooMuch)
-		badBuys := buyingButShouldNotBe(allBuys, shouldBuy)
 		allSells := app.characterOrders.Orders(false)
+		shouldSell := shouldBeSelling(hangarAssets, rules)
 
-		printCategory("all buys", allBuys)
-		printCategory("should buy", shouldBuy)
-		printCategory("bad buys", badBuys)
-		printCategory("all sells", allSells)
+		printCategory("1 - bad buys", sliceDiff(allBuys, shouldBuy))
+		printCategory("2 - should be buying", shouldBuy)
+		printCategory("3 - should be buying but am not", sliceDiff(shouldBuy, allBuys))
+		printCategory("4 - should be selling but am not", sliceDiff(shouldSell, allSells))
+		printCategory("5 - should be selling", shouldSell)
+		printCategory("6 - all sells", allSells)
+		printCategory("7 - all buys", allBuys)
+		printCategory("8 - small sell orders", app.characterOrders.SmallSells(smallSellThreshold))
 
 	}
 }

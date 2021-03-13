@@ -126,6 +126,33 @@ func (c *CharacterOrderModel) Orders(buy bool) []string {
 	return output
 }
 
+func (c *CharacterOrderModel) SmallSells(limit float64) []string {
+	stmt := `SELECT name
+	FROM character_orders
+	WHERE is_buy = 0 AND (volume_remaining * price) < %f`
+
+	output := []string{}
+
+	rows, err := c.DB.Query(fmt.Sprintf(stmt, limit))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for rows.Next() {
+		var c string
+		err = rows.Scan(
+			&c,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		output = append(output, c)
+	}
+
+	return output
+}
+
 func (c *CharacterOrderModel) addMany(orders []*models.CharacterOrder) {
 	if len(orders) == 0 {
 		return
