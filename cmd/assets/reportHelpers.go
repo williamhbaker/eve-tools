@@ -46,3 +46,48 @@ func combinedAssetCount(l1, l2 []models.CharacterAsset) map[string]int {
 
 	return output
 }
+
+func shouldBeBuying(rules []itemRule, pricedOut, tooMuch []string) []string {
+	output := []string{}
+	m := stringSliceToMap(pricedOut, tooMuch)
+
+	for _, val := range rules {
+		if !m[val.ItemName] {
+			output = append(output, val.ItemName)
+		}
+	}
+
+	return output
+}
+
+func buyingButShouldNotBe(am, should []string) []string {
+	output := []string{}
+
+	sMap := make(map[string]struct{})
+	for _, val := range should {
+		sMap[val] = struct{}{}
+	}
+
+	for _, val := range am {
+		_, ok := sMap[val]
+		if !ok {
+			output = append(output, val)
+		}
+	}
+
+	return output
+}
+
+func stringSliceToMap(s1, s2 []string) map[string]bool {
+	output := make(map[string]bool)
+
+	for _, val := range s1 {
+		output[val] = true
+	}
+
+	for _, val := range s2 {
+		output[val] = true
+	}
+
+	return output
+}

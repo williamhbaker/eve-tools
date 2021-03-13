@@ -91,14 +91,22 @@ func (c *CharacterOrderModel) SellingInventory() []models.CharacterAsset {
 	return output
 }
 
-func (c *CharacterOrderModel) BuyOrders() []string {
+func (c *CharacterOrderModel) Orders(buy bool) []string {
+	var buyFlag int
+
+	if buy {
+		buyFlag = 1
+	} else {
+		buyFlag = 0
+	}
+
 	stmt := `SELECT DISTINCT(name)
 	FROM character_orders
-	WHERE is_buy = 1 AND volume_remaining > 0`
+	WHERE is_buy = %d AND volume_remaining > 0`
 
 	output := []string{}
 
-	rows, err := c.DB.Query(stmt)
+	rows, err := c.DB.Query(fmt.Sprintf(stmt, buyFlag))
 	if err != nil {
 		log.Fatal(err)
 	}

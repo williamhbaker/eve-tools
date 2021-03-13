@@ -109,28 +109,15 @@ func main() {
 
 		pricedOut := tooExpensive(prices, rules)
 		tooMuch := tooMuchInventory(hangarAssets, escrowAssets, rules)
+		allBuys := app.characterOrders.Orders(true)
+		shouldBuy := shouldBeBuying(rules, pricedOut, tooMuch)
+		badBuys := buyingButShouldNotBe(allBuys, shouldBuy)
+		allSells := app.characterOrders.Orders(false)
 
-		fmt.Println("")
-		fmt.Println("stuff is too expensive")
-		fmt.Println("")
-		for _, val := range pricedOut {
-			fmt.Println(val)
-		}
-
-		fmt.Println("")
-		fmt.Println("too much stuff")
-		fmt.Println("")
-		for _, val := range tooMuch {
-			fmt.Println(val)
-		}
-
-		fmt.Println("")
-		fmt.Println("everything you are currently buying")
-		fmt.Println("")
-		allBuys := app.characterOrders.BuyOrders()
-		for _, val := range allBuys {
-			fmt.Println(val)
-		}
+		printCategory("all buys", allBuys)
+		printCategory("should buy", shouldBuy)
+		printCategory("bad buys", badBuys)
+		printCategory("all sells", allSells)
 
 	}
 }
@@ -146,4 +133,12 @@ func (app *application) updateOrdersByRegion(regionID, sellStationID, buyStation
 
 	app.orders.LoadData(sellStationID, sellStationPrices)
 	app.orders.LoadData(buyStationID, buyStationPrices)
+}
+
+func printCategory(catName string, items []string) {
+	fmt.Printf("+ %v\n", catName)
+
+	for _, i := range items {
+		fmt.Printf("- %v\n", i)
+	}
 }
