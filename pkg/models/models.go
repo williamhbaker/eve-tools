@@ -50,3 +50,49 @@ type ItemHistoryData struct {
 	YearMinBuy  float64
 	YearMaxBuy  float64
 }
+
+// ClientID is used by the esi login to register the specified client.
+type ClientID struct {
+	value string
+}
+
+// ClientSecret is also used by the esi login.
+type ClientSecret struct {
+	value string
+}
+
+// AuthToken is an ESI auth token
+type AuthToken struct {
+	AccessToken  string
+	ExpiresIn    int
+	RefreshToken string
+	Issued       int64
+}
+
+// CharacterOrder is the data for an order from a character
+type CharacterOrder struct {
+	Name       string
+	Duration   int
+	IsBuy      bool
+	Issued     string
+	LocationID int
+	MinVolume  int
+	OrderID    int
+	Price      float64
+	Range      string
+	RegionID   int
+	State      string
+	TypeID     int
+	VolRemain  int
+	VolTotal   int
+}
+
+// CharacterAsset is the data for an asset of a character
+type CharacterAsset struct {
+	Name         string
+	TypeID       int
+	LocationFlag string
+	LocationID   int
+	LocationType string
+	Quantity     int
+}

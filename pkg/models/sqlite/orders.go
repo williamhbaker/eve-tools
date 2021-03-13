@@ -26,6 +26,46 @@ func (o *OrderModel) LoadData(stationID int, data map[int]*models.OrderItem) {
 	o.addMany(stationID, data)
 }
 
+func (o *OrderModel) BuyPriceTable(sellStationID, buyStationID int) map[string]float64 {
+	stmt := `
+	SELECT sell_station.item_id AS item_id,
+	sell_station.name AS name,
+	MAX(sell_station.buy_price, buy_station.buy_price) AS buy_price
+	FROM "%d_orders" AS sell_station
+	INNER JOIN "%d_orders" AS buy_station
+		ON sell_station.item_id = buy_station.item_id
+	WHERE
+		MAX(sell_station.buy_price, buy_station.buy_price) > 0
+	`
+
+	output := make(map[string]float64)
+
+	rows, err := o.DB.Query(fmt.Sprintf(stmt, sellStationID, buyStationID))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for rows.Next() {
+		c := struct {
+			TypeID   int
+			ItemName string
+			Price    float64
+		}{}
+		err = rows.Scan(
+			&c.TypeID,
+			&c.ItemName,
+			&c.Price,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		output[c.ItemName] = c.Price
+	}
+
+	return output
+}
+
 // GetAllMargins returns a list of margins for all of the items in the database
 func (o *OrderModel) GetAllMargins(sellStationID, buyStationID int) []*models.MarginItem {
 	output := []*models.MarginItem{}
