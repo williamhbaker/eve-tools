@@ -111,3 +111,39 @@ func sliceDiff(base, comp []string) []string {
 
 	return output
 }
+
+func orphans(hangar, escrow []models.CharacterAsset, rules []itemRule) []string {
+	counts := combinedAssetCount(hangar, escrow)
+	ruleMap := make(map[string]bool)
+
+	for _, val := range rules {
+		ruleMap[val.ItemName] = true
+	}
+
+	output := []string{}
+
+	for k, v := range counts {
+		if v > 0 && !ruleMap[k] {
+			output = append(output, k)
+		}
+	}
+
+	return output
+}
+
+func sliceUnion(s1, s2 []string) []string {
+	m1 := make(map[string]bool)
+	for _, val := range s1 {
+		m1[val] = true
+	}
+
+	output := []string{}
+
+	for _, val := range s2 {
+		if m1[val] {
+			output = append(output, val)
+		}
+	}
+
+	return output
+}

@@ -123,14 +123,59 @@ func main() {
 
 		var finalString strings.Builder
 
-		finalString.WriteString(printCategory("1 - bad buys", sliceDiff(allBuys, shouldBuy)))
-		finalString.WriteString(printCategory("2 - should be buying", shouldBuy))
-		finalString.WriteString(printCategory("3 - should be buying but am not", sliceDiff(shouldBuy, allBuys)))
-		finalString.WriteString(printCategory("4 - should be selling but am not", sliceDiff(shouldSell, allSells)))
-		finalString.WriteString(printCategory("5 - should be selling", shouldSell))
-		finalString.WriteString(printCategory("6 - all sells", allSells))
-		finalString.WriteString(printCategory("7 - all buys", allBuys))
-		finalString.WriteString(printCategory("8 - small sell orders", app.characterOrders.SmallSells(smallSellThreshold)))
+		outputs := []struct {
+			heading string
+			values  []string
+		}{
+			{
+				"1 - all bad buys",
+				sliceDiff(allBuys, shouldBuy),
+			},
+			{
+				"1a - bad buys - too much",
+				sliceUnion(allBuys, tooMuch),
+			},
+			{
+				"1b - bad buys - too expensive",
+				pricedOut,
+			},
+			{
+				"2 - should be buying",
+				shouldBuy,
+			},
+			{
+				"3 - should be buying but am not",
+				sliceDiff(shouldBuy, allBuys),
+			},
+			{
+				"4 - should be selling but am not",
+				sliceDiff(shouldSell, allSells),
+			},
+			{
+				"5 - should be selling",
+				shouldSell,
+			},
+			{
+				"6 - all sells",
+				allSells,
+			},
+			{
+				"7 - all buys",
+				allBuys,
+			},
+			{
+				"8 - small sell orders",
+				app.characterOrders.SmallSells(smallSellThreshold),
+			},
+			{
+				"9 - orphans",
+				orphans(hangarAssets, escrowAssets, rules),
+			},
+		}
+
+		for _, val := range outputs {
+			finalString.WriteString(printCategory(val.heading, val.values))
+		}
 
 		fmt.Println(finalString.String())
 		clipboard.WriteAll(finalString.String())
