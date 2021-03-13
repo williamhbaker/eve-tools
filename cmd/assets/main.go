@@ -110,13 +110,25 @@ func main() {
 		pricedOut := tooExpensive(prices, rules)
 		tooMuch := tooMuchInventory(hangarAssets, escrowAssets, rules)
 
+		fmt.Println("")
 		fmt.Println("stuff is too expensive")
+		fmt.Println("")
 		for _, val := range pricedOut {
 			fmt.Println(val)
 		}
 
+		fmt.Println("")
 		fmt.Println("too much stuff")
+		fmt.Println("")
 		for _, val := range tooMuch {
+			fmt.Println(val)
+		}
+
+		fmt.Println("")
+		fmt.Println("everything you are currently buying")
+		fmt.Println("")
+		allBuys := app.characterOrders.BuyOrders()
+		for _, val := range allBuys {
 			fmt.Println(val)
 		}
 

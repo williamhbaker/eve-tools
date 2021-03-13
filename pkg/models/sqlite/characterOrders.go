@@ -91,6 +91,33 @@ func (c *CharacterOrderModel) SellingInventory() []models.CharacterAsset {
 	return output
 }
 
+func (c *CharacterOrderModel) BuyOrders() []string {
+	stmt := `SELECT DISTINCT(name)
+	FROM character_orders
+	WHERE is_buy = 1 AND volume_remaining > 0`
+
+	output := []string{}
+
+	rows, err := c.DB.Query(stmt)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for rows.Next() {
+		var c string
+		err = rows.Scan(
+			&c,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		output = append(output, c)
+	}
+
+	return output
+}
+
 func (c *CharacterOrderModel) addMany(orders []*models.CharacterOrder) {
 	if len(orders) == 0 {
 		return
