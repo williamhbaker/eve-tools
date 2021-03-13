@@ -6,7 +6,9 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"strings"
 
+	"github.com/atotto/clipboard"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/wbaker85/eve-tools/pkg/lib"
 	"github.com/wbaker85/eve-tools/pkg/models"
@@ -99,8 +101,11 @@ func main() {
 		json.Unmarshal(d, &charData)
 
 		app.charID = int(charData["CharacterID"].(float64))
+		fmt.Printf("Got character ID: %d\n", app.charID)
 
+		fmt.Println("Getting Character orders...")
 		app.populateCharacterOrders()
+		fmt.Println("Getting Character assets...")
 		app.populateCharacterAssets()
 
 		hangarAssets := app.characterAssets.GetGrouped()
@@ -116,15 +121,19 @@ func main() {
 		allSells := app.characterOrders.Orders(false)
 		shouldSell := shouldBeSelling(hangarAssets, rules)
 
-		printCategory("1 - bad buys", sliceDiff(allBuys, shouldBuy))
-		printCategory("2 - should be buying", shouldBuy)
-		printCategory("3 - should be buying but am not", sliceDiff(shouldBuy, allBuys))
-		printCategory("4 - should be selling but am not", sliceDiff(shouldSell, allSells))
-		printCategory("5 - should be selling", shouldSell)
-		printCategory("6 - all sells", allSells)
-		printCategory("7 - all buys", allBuys)
-		printCategory("8 - small sell orders", app.characterOrders.SmallSells(smallSellThreshold))
+		var finalString strings.Builder
 
+		finalString.WriteString(printCategory("1 - bad buys", sliceDiff(allBuys, shouldBuy)))
+		finalString.WriteString(printCategory("2 - should be buying", shouldBuy))
+		finalString.WriteString(printCategory("3 - should be buying but am not", sliceDiff(shouldBuy, allBuys)))
+		finalString.WriteString(printCategory("4 - should be selling but am not", sliceDiff(shouldSell, allSells)))
+		finalString.WriteString(printCategory("5 - should be selling", shouldSell))
+		finalString.WriteString(printCategory("6 - all sells", allSells))
+		finalString.WriteString(printCategory("7 - all buys", allBuys))
+		finalString.WriteString(printCategory("8 - small sell orders", app.characterOrders.SmallSells(smallSellThreshold)))
+
+		fmt.Println(finalString.String())
+		clipboard.WriteAll(finalString.String())
 	}
 }
 
@@ -141,10 +150,20 @@ func (app *application) updateOrdersByRegion(regionID, sellStationID, buyStation
 	app.orders.LoadData(buyStationID, buyStationPrices)
 }
 
-func printCategory(catName string, items []string) {
-	fmt.Printf("+ %v\n", catName)
+func printCategory(catName string, items []string) string {
+	var b strings.Builder
+
+	b.WriteString(fmt.Sprintf("+ %v\n", catName))
 
 	for _, i := range items {
-		fmt.Printf("- %v\n", i)
+		b.WriteString(fmt.Sprintf("- %v\n", i))
 	}
+
+	return b.String()
+
+	// fmt.Printf("+ %v\n", catName)
+
+	// for _, i := range items {
+	// 	fmt.Printf("- %v\n", i)
+	// }
 }
