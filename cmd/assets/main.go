@@ -160,10 +160,4 @@ func printCategory(catName string, items []string) string {
 	}
 
 	return b.String()
-
-	// fmt.Printf("+ %v\n", catName)
-
-	// for _, i := range items {
-	// 	fmt.Printf("- %v\n", i)
-	// }
 }
