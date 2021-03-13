@@ -128,53 +128,62 @@ func main() {
 			values  []string
 		}{
 			{
-				"1 - all bad buys",
+				"all bad buys",
 				sliceDiff(allBuys, shouldBuy),
 			},
 			{
-				"1a - bad buys - too much",
+				"bad buys - too much",
 				sliceUnion(allBuys, tooMuch),
 			},
 			{
-				"1b - bad buys - too expensive",
-				pricedOut,
+				"bad buys - too expensive",
+				sliceUnion(allBuys, pricedOut),
 			},
 			{
-				"2 - should be buying",
+				"should be buying",
 				shouldBuy,
 			},
 			{
-				"3 - should be buying but am not",
+				"should be buying but am not",
 				sliceDiff(shouldBuy, allBuys),
 			},
 			{
-				"4 - should be selling but am not",
+				"should be selling but am not",
 				sliceDiff(shouldSell, allSells),
 			},
 			{
-				"5 - should be selling",
+				"sell - hangar quantity",
 				shouldSell,
 			},
 			{
-				"6 - all sells",
+				"sell - priced out w/ hangar",
+				hangarPricedOut(hangarAssets, pricedOut),
+			},
+			{
+				"all sells",
 				allSells,
 			},
 			{
-				"7 - all buys",
+				"all buys",
 				allBuys,
 			},
 			{
-				"8 - small sell orders",
+				"small sell orders",
 				app.characterOrders.SmallSells(smallSellThreshold),
 			},
 			{
-				"9 - orphans",
+				"orphans",
 				orphans(hangarAssets, escrowAssets, rules),
+			},
+			{
+				"all priced out",
+				pricedOut,
 			},
 		}
 
-		for _, val := range outputs {
-			finalString.WriteString(printCategory(val.heading, val.values))
+		for idx, val := range outputs {
+			h := fmt.Sprintf("%02d - %s", idx+1, val.heading)
+			finalString.WriteString(printCategory(h, val.values))
 		}
 
 		fmt.Println(finalString.String())
