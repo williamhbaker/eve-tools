@@ -26,7 +26,7 @@ type order struct {
 	VolTotal   int     `json:"volume_total"`
 }
 
-func (app *application) getCharacterOrders() {
+func (app *application) populateCharacterOrders() {
 	var charData map[string]interface{}
 	d := app.authorizedRequest(charIDURL, "GET")
 	json.Unmarshal(d, &charData)
@@ -46,10 +46,6 @@ func (app *application) getCharacterOrders() {
 
 	nameCharacterOrders(charOrders)
 	app.characterOrders.LoadData(charOrders)
-
-	for _, val := range app.characterOrders.GetAll() {
-		fmt.Printf("%#v\n", val)
-	}
 }
 
 func nameCharacterOrders(o []*models.CharacterOrder) {

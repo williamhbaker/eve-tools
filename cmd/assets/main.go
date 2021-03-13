@@ -69,6 +69,6 @@ func main() {
 	}
 
 	if newClientID == "" && newClientSecret == "" && !addCharacter {
-		app.getCharacterOrders()
+		app.populateCharacterOrders()
 	}
 }
