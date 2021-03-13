@@ -16,9 +16,10 @@ const listenURL = ":4949"
 const scopes = "esi-assets.read_assets.v1 esi-markets.read_character_orders.v1"
 
 type application struct {
-	clientID     *sqlite.ClientIDModel
-	clientSecret *sqlite.ClientSecretModel
-	authToken    *sqlite.AuthTokenModel
+	clientID        *sqlite.ClientIDModel
+	clientSecret    *sqlite.ClientSecretModel
+	authToken       *sqlite.AuthTokenModel
+	characterOrders *sqlite.CharacterOrderModel
 }
 
 func main() {
@@ -36,9 +37,10 @@ func main() {
 	defer db.Close()
 
 	app := application{
-		clientID:     &sqlite.ClientIDModel{DB: db},
-		clientSecret: &sqlite.ClientSecretModel{DB: db},
-		authToken:    &sqlite.AuthTokenModel{DB: db},
+		clientID:        &sqlite.ClientIDModel{DB: db},
+		clientSecret:    &sqlite.ClientSecretModel{DB: db},
+		authToken:       &sqlite.AuthTokenModel{DB: db},
+		characterOrders: &sqlite.CharacterOrderModel{DB: db},
 	}
 
 	if newClientID != "" {

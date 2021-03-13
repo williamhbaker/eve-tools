@@ -45,8 +45,9 @@ func (app *application) getCharacterOrders() {
 	}
 
 	nameCharacterOrders(charOrders)
+	app.characterOrders.LoadData(charOrders)
 
-	for _, val := range charOrders {
+	for _, val := range app.characterOrders.GetAll() {
 		fmt.Printf("%#v\n", val)
 	}
 }
