@@ -61,6 +61,36 @@ func (c *CharacterOrderModel) GetAll() []*models.CharacterOrder {
 	return output
 }
 
+func (c *CharacterOrderModel) SellingInventory() []models.CharacterAsset {
+	stmt := `SELECT type_id, name, SUM(volume_remaining) AS quantity
+	FROM character_orders
+	WHERE is_buy = 0
+	GROUP BY name`
+
+	output := []models.CharacterAsset{}
+
+	rows, err := c.DB.Query(stmt)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for rows.Next() {
+		c := models.CharacterAsset{}
+		err = rows.Scan(
+			&c.TypeID,
+			&c.Name,
+			&c.Quantity,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		output = append(output, c)
+	}
+
+	return output
+}
+
 func (c *CharacterOrderModel) addMany(orders []*models.CharacterOrder) {
 	if len(orders) == 0 {
 		return

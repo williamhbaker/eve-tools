@@ -53,6 +53,37 @@ func (c *CharacterAssetModel) GetAll() []models.CharacterAsset {
 	return output
 }
 
+func (c *CharacterAssetModel) GetGrouped() []models.CharacterAsset {
+	stmt := `SELECT type_id, name, SUM(quantity) AS quantity
+	FROM character_assets
+	WHERE location_flag = 'Hangar'
+	GROUP BY name
+	`
+
+	output := []models.CharacterAsset{}
+
+	rows, err := c.DB.Query(stmt)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for rows.Next() {
+		c := models.CharacterAsset{}
+		err = rows.Scan(
+			&c.TypeID,
+			&c.Name,
+			&c.Quantity,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		output = append(output, c)
+	}
+
+	return output
+}
+
 func (c *CharacterAssetModel) addMany(assets []models.CharacterAsset) {
 	if len(assets) == 0 {
 		return

@@ -81,5 +81,13 @@ func main() {
 
 		app.populateCharacterOrders()
 		app.populateCharacterAssets()
+
+		// hangarAssets := app.characterAssets.GetGrouped()
+		// escrowAssets := app.characterOrders.SellingInventory()
+		// rules := parseRules("./trade_rules.csv")
+
+		// for _, val := range rules {
+		// 	fmt.Printf("%#v\n", val)
+		// }
 	}
 }
