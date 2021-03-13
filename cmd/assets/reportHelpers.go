@@ -147,3 +147,13 @@ func sliceUnion(s1, s2 []string) []string {
 
 	return output
 }
+
+func hangarPricedOut(h []models.CharacterAsset, p []string) []string {
+	hangarItems := []string{}
+
+	for _, val := range h {
+		hangarItems = append(hangarItems, val.Name)
+	}
+
+	return sliceUnion(hangarItems, p)
+}
