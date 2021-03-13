@@ -86,3 +86,13 @@ type CharacterOrder struct {
 	VolRemain  int
 	VolTotal   int
 }
+
+// CharacterAsset is the data for an asset of a character
+type CharacterAsset struct {
+	Name         string
+	TypeID       int
+	LocationFlag string
+	LocationID   int
+	LocationType string
+	Quantity     int
+}

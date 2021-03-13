@@ -21,6 +21,7 @@ type application struct {
 	clientSecret    *sqlite.ClientSecretModel
 	authToken       *sqlite.AuthTokenModel
 	characterOrders *sqlite.CharacterOrderModel
+	characterAssets *sqlite.CharacterAssetModel
 	charID          int
 }
 
@@ -43,6 +44,7 @@ func main() {
 		clientSecret:    &sqlite.ClientSecretModel{DB: db},
 		authToken:       &sqlite.AuthTokenModel{DB: db},
 		characterOrders: &sqlite.CharacterOrderModel{DB: db},
+		characterAssets: &sqlite.CharacterAssetModel{DB: db},
 	}
 
 	if newClientID != "" {
