@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/wbaker85/eve-tools/pkg/lib"
@@ -26,9 +25,9 @@ type order struct {
 	VolTotal   int     `json:"volume_total"`
 }
 
-func (app *application) populateCharacterOrders(charID int) {
+func (app *application) populateCharacterOrders() {
 	var orders []order
-	d := app.authorizedRequest(fmt.Sprintf(ordersURL, charID), "GET")
+	d := app.authorizedRequest(ordersURL, "GET", false)
 	json.Unmarshal(d, &orders)
 
 	charOrders := make([]*models.CharacterOrder, len(orders))

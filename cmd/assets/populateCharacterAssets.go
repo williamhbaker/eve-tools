@@ -8,9 +8,9 @@ import (
 type asset struct {
 }
 
-func (app *application) populateCharacterAssets(charID int) {
+func (app *application) populateCharacterAssets() {
 	var assets []map[string]interface{}
-	d := app.authorizedRequest(fmt.Sprintf(assetsURL, charID), "GET")
+	d := app.authorizedRequest(assetsURL, "GET", true)
 	json.Unmarshal(d, &assets)
 
 	for _, val := range assets {

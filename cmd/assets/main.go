@@ -21,6 +21,7 @@ type application struct {
 	clientSecret    *sqlite.ClientSecretModel
 	authToken       *sqlite.AuthTokenModel
 	characterOrders *sqlite.CharacterOrderModel
+	charID          int
 }
 
 func main() {
@@ -66,17 +67,17 @@ func main() {
 		}
 
 		app.authToken.RegisterToken(token)
-		fmt.Println(string(app.authorizedRequest(charIDURL, "GET")))
+		fmt.Println(string(app.authorizedRequest(charIDURL, "GET", false)))
 	}
 
 	if newClientID == "" && newClientSecret == "" && !addCharacter {
 		var charData map[string]interface{}
-		d := app.authorizedRequest(charIDURL, "GET")
+		d := app.authorizedRequest(charIDURL, "GET", false)
 		json.Unmarshal(d, &charData)
 
-		charID := int(charData["CharacterID"].(float64))
+		app.charID = int(charData["CharacterID"].(float64))
 
-		app.populateCharacterOrders(charID)
-		app.populateCharacterAssets(charID)
+		app.populateCharacterOrders()
+		app.populateCharacterAssets()
 	}
 }

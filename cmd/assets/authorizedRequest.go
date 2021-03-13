@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/wbaker85/eve-tools/pkg/lib"
 	"github.com/wbaker85/eve-tools/pkg/models"
@@ -13,9 +14,9 @@ import (
 
 const charIDURL = "https://login.eveonline.com/oauth/verify"
 const ordersURL = "https://esi.evetech.net/v1/characters/%d/orders"
-const assetsURL = "https://esi.evetech.net/v5/characters/%d/assets/"
+const assetsURL = "https://esi.evetech.net/v5/characters/%d/assets?page=%d"
 
-func (app *application) authorizedRequest(url, method string) []byte {
+func (app *application) authorizedRequest(url, method string, paginated bool) []byte {
 	t, refreshed := lib.CurrentToken(app.authToken.GetToken(), app.clientID.GetID(), app.clientSecret.GetSecret())
 	if refreshed {
 		app.authToken.RegisterToken(models.AuthToken{
@@ -26,11 +27,33 @@ func (app *application) authorizedRequest(url, method string) []byte {
 		})
 	}
 
-	if method == "GET" {
-		return app.authorizedGet(url)
+	if method == "GET" && !paginated {
+		if url == charIDURL {
+			return app.authorizedGet(url)
+		}
+		return app.authorizedGet(fmt.Sprintf(url, app.charID))
+	} else if method == "GET" && paginated {
+		return app.paginatedAuthorizedGet(url)
 	}
 
 	return []byte("")
+}
+
+func (app *application) paginatedAuthorizedGet(u string) []byte {
+	page := 1
+	output := []byte{}
+
+	for {
+		url := fmt.Sprintf(u, app.charID, page)
+		d := app.authorizedGet(url)
+
+		if strings.Contains(string(d), "Requested page does not exist!") {
+			return output
+		}
+
+		output = append(output, d...)
+		page++
+	}
 }
 
 func (app *application) authorizedGet(u string) []byte {
