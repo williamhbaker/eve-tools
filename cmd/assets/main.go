@@ -179,6 +179,10 @@ func main() {
 				"all priced out",
 				pricedOut,
 			},
+			{
+				"all too much inventory",
+				tooMuch,
+			},
 		}
 
 		for idx, val := range outputs {
