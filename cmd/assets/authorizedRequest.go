@@ -13,6 +13,7 @@ import (
 
 const charIDURL = "https://login.eveonline.com/oauth/verify"
 const ordersURL = "https://esi.evetech.net/v1/characters/%d/orders"
+const assetsURL = "https://esi.evetech.net/v5/characters/%d/assets/"
 
 func (app *application) authorizedRequest(url, method string) []byte {
 	t, refreshed := lib.CurrentToken(app.authToken.GetToken(), app.clientID.GetID(), app.clientSecret.GetSecret())

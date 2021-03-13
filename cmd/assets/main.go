@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"flag"
 	"fmt"
 
@@ -69,6 +70,13 @@ func main() {
 	}
 
 	if newClientID == "" && newClientSecret == "" && !addCharacter {
-		app.populateCharacterOrders()
+		var charData map[string]interface{}
+		d := app.authorizedRequest(charIDURL, "GET")
+		json.Unmarshal(d, &charData)
+
+		charID := int(charData["CharacterID"].(float64))
+
+		app.populateCharacterOrders(charID)
+		app.populateCharacterAssets(charID)
 	}
 }

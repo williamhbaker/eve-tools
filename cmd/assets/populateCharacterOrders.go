@@ -26,15 +26,9 @@ type order struct {
 	VolTotal   int     `json:"volume_total"`
 }
 
-func (app *application) populateCharacterOrders() {
-	var charData map[string]interface{}
-	d := app.authorizedRequest(charIDURL, "GET")
-	json.Unmarshal(d, &charData)
-
-	charID := int(charData["CharacterID"].(float64))
-
+func (app *application) populateCharacterOrders(charID int) {
 	var orders []order
-	d = app.authorizedRequest(fmt.Sprintf(ordersURL, charID), "GET")
+	d := app.authorizedRequest(fmt.Sprintf(ordersURL, charID), "GET")
 	json.Unmarshal(d, &orders)
 
 	charOrders := make([]*models.CharacterOrder, len(orders))
