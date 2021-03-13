@@ -26,9 +26,10 @@ func (o *OrderModel) LoadData(stationID int, data map[int]*models.OrderItem) {
 	o.addMany(stationID, data)
 }
 
-func (o *OrderModel) BuyPriceTable(sellStationID, buyStationID int) map[int]float64 {
+func (o *OrderModel) BuyPriceTable(sellStationID, buyStationID int) map[string]float64 {
 	stmt := `
 	SELECT sell_station.item_id AS item_id,
+	sell_station.name AS name,
 	MAX(sell_station.buy_price, buy_station.buy_price) AS buy_price
 	FROM "%d_orders" AS sell_station
 	INNER JOIN "%d_orders" AS buy_station
@@ -37,9 +38,7 @@ func (o *OrderModel) BuyPriceTable(sellStationID, buyStationID int) map[int]floa
 		MAX(sell_station.buy_price, buy_station.buy_price) > 0
 	`
 
-	output := make(map[int]float64)
-
-	fmt.Println("GREETINGS")
+	output := make(map[string]float64)
 
 	rows, err := o.DB.Query(fmt.Sprintf(stmt, sellStationID, buyStationID))
 	if err != nil {
@@ -48,18 +47,20 @@ func (o *OrderModel) BuyPriceTable(sellStationID, buyStationID int) map[int]floa
 
 	for rows.Next() {
 		c := struct {
-			TypeID int
-			Price  float64
+			TypeID   int
+			ItemName string
+			Price    float64
 		}{}
 		err = rows.Scan(
 			&c.TypeID,
+			&c.ItemName,
 			&c.Price,
 		)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		output[c.TypeID] = c.Price
+		output[c.ItemName] = c.Price
 	}
 
 	return output

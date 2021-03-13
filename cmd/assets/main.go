@@ -103,12 +103,15 @@ func main() {
 
 		// hangarAssets := app.characterAssets.GetGrouped()
 		// escrowAssets := app.characterOrders.SellingInventory()
-		// rules := parseRules("./trade_rules.csv")
-		// prices := app.orders.BuyPriceTable(jitaStationID, perimiterTTTStationID)
 
-		// for _, val := range rules {
-		// 	fmt.Printf("%#v\n", val)
-		// }
+		rules := parseRules("./trade_rules.csv")
+		prices := app.orders.BuyPriceTable(jitaStationID, perimiterTTTStationID)
+
+		pricedOut := tooExpensive(prices, rules)
+
+		for _, val := range pricedOut {
+			fmt.Println(val)
+		}
 	}
 }
 
