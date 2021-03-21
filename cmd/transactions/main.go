@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"os"
 
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/wbaker85/eve-tools/pkg/models"
 	"github.com/wbaker85/eve-tools/pkg/models/csvparser"
 	"github.com/wbaker85/eve-tools/pkg/models/sqlite"
