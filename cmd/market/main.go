@@ -72,8 +72,6 @@ func main() {
 	metaData := lib.ParseItemData("./item_data.csv")
 
 	app.generateTradingReport("./report.csv", margins, volumes, metaData)
-
-	app.processTransactions("./transactions.csv")
 }
 
 func (app *application) updateOrdersByRegion(regionID, sellStationID, buyStationID int) {

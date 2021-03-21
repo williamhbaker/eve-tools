@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"os"
 
-	"github.com/wbaker85/eve-tools/pkg/lib"
 	"github.com/wbaker85/eve-tools/pkg/models"
 	"github.com/wbaker85/eve-tools/pkg/models/csvparser"
 	"github.com/wbaker85/eve-tools/pkg/models/sqlite"
@@ -12,9 +11,6 @@ import (
 
 type application struct {
 	transactions *sqlite.TransactionModel
-	orders       *sqlite.OrderModel
-	itemAverages *sqlite.ItemHistoryDataModel
-	api          *lib.Esi
 	parser       interface {
 		ParseTransactions() []*models.Transaction
 	}
