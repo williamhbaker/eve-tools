@@ -96,3 +96,19 @@ type CharacterAsset struct {
 	LocationType string
 	Quantity     int
 }
+
+type ProfitItem struct {
+	Name      string
+	SoldQty   int
+	BuyQty    int
+	AvgSell   float64
+	AvgBuy    float64
+	SoldVal   float64
+	BoughtVal float64
+	Profit    float64
+}
+
+type DateSale struct {
+	Date       string
+	TotalSales float64
+}

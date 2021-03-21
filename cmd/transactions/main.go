@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -30,6 +31,18 @@ func main() {
 	}
 
 	app.processTransactions()
+
+	profitList := app.transactions.Profitable()
+
+	for _, val := range profitList {
+		fmt.Println(val)
+	}
+
+	dateList := app.transactions.DateSales()
+
+	for _, val := range dateList {
+		fmt.Println(val)
+	}
 
 }
 
