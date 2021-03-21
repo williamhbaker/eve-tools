@@ -103,7 +103,7 @@ SELECT	transactions.name,
 	SUM(transactions.value) / SUM(transactions.quantity) AS avg_sell,
 	averages.avg_buy,
 	SUM(transactions.value) AS sold_val,
-	averages.avg_buy*SUM(transactions.quantity) AS buy_val,
+	averages.avg_buy*SUM(transactions.quantity) AS bought_val,
 	SUM(transactions.value) - averages.avg_buy*SUM(transactions.quantity) AS profit
 FROM transactions
 INNER JOIN (
